@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D31EF802959728B006BECB8 /* CommonUtil.m */; };
 		2D31EF832959950B006BECB8 /* 131.aac in Resources */ = {isa = PBXBuildFile; fileRef = 2D31EF8229597385006BECB8 /* 131.aac */; };
+		2D31EF87295A1724006BECB8 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D31EF86295A1724006BECB8 /* libavcodec.a */; };
 		2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D410CFD28F272B9009593AE /* AppDelegate.m */; };
 		2D410D0428F272B9009593AE /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D410D0328F272B9009593AE /* ViewController.mm */; };
 		2D410D0928F272B9009593AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D410D0828F272B9009593AE /* Assets.xcassets */; };
@@ -23,7 +24,6 @@
 		2DD179F42951F7E60057B9BC /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD179F32951F7E60057B9BC /* CoreMedia.framework */; };
 		2DD17A812951F8290057B9BC /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD17A7A2951F8290057B9BC /* libavutil.a */; };
 		2DD17A822951F8290057B9BC /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD17A7B2951F8290057B9BC /* libavfilter.a */; };
-		2DD17A832951F8290057B9BC /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD17A7C2951F8290057B9BC /* libavcodec.a */; };
 		2DD17A842951F8290057B9BC /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD17A7D2951F8290057B9BC /* libavformat.a */; };
 		2DD17A852951F8290057B9BC /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD17A7E2951F8290057B9BC /* libavdevice.a */; };
 		2DD17A862951F8290057B9BC /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD17A7F2951F8290057B9BC /* libswresample.a */; };
@@ -52,6 +52,7 @@
 		2D31EF7F2959728B006BECB8 /* CommonUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonUtil.h; sourceTree = "<group>"; };
 		2D31EF802959728B006BECB8 /* CommonUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommonUtil.m; sourceTree = "<group>"; };
 		2D31EF8229597385006BECB8 /* 131.aac */ = {isa = PBXFileReference; lastKnownFileType = file; path = 131.aac; sourceTree = "<group>"; };
+		2D31EF86295A1724006BECB8 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
 		2D410CF928F272B9009593AE /* MyTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D410CFC28F272B9009593AE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2D410CFD28F272B9009593AE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -195,7 +196,6 @@
 		2DD17A782951F8290057B9BC /* swresample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = swresample.h; sourceTree = "<group>"; };
 		2DD17A7A2951F8290057B9BC /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavutil.a; sourceTree = "<group>"; };
 		2DD17A7B2951F8290057B9BC /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavfilter.a; sourceTree = "<group>"; };
-		2DD17A7C2951F8290057B9BC /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
 		2DD17A7D2951F8290057B9BC /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavformat.a; sourceTree = "<group>"; };
 		2DD17A7E2951F8290057B9BC /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavdevice.a; sourceTree = "<group>"; };
 		2DD17A7F2951F8290057B9BC /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswresample.a; sourceTree = "<group>"; };
@@ -212,6 +212,7 @@
 				2DD17A822951F8290057B9BC /* libavfilter.a in Frameworks */,
 				2DD179F42951F7E60057B9BC /* CoreMedia.framework in Frameworks */,
 				2DD179492951ED690057B9BC /* libiconv.tbd in Frameworks */,
+				2D31EF87295A1724006BECB8 /* libavcodec.a in Frameworks */,
 				2DD17A842951F8290057B9BC /* libavformat.a in Frameworks */,
 				2DD17A862951F8290057B9BC /* libswresample.a in Frameworks */,
 				2DD179472951ED610057B9BC /* libbz2.tbd in Frameworks */,
@@ -221,7 +222,6 @@
 				2DD17A852951F8290057B9BC /* libavdevice.a in Frameworks */,
 				2DD17A872951F8290057B9BC /* libswscale.a in Frameworks */,
 				2DD1786A2951DDC70057B9BC /* AudioToolbox.framework in Frameworks */,
-				2DD17A832951F8290057B9BC /* libavcodec.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,8 +503,8 @@
 			children = (
 				2DD17A7A2951F8290057B9BC /* libavutil.a */,
 				2DD17A7B2951F8290057B9BC /* libavfilter.a */,
-				2DD17A7C2951F8290057B9BC /* libavcodec.a */,
 				2DD17A7D2951F8290057B9BC /* libavformat.a */,
+				2D31EF86295A1724006BECB8 /* libavcodec.a */,
 				2DD17A7E2951F8290057B9BC /* libavdevice.a */,
 				2DD17A7F2951F8290057B9BC /* libswresample.a */,
 				2DD17A802951F8290057B9BC /* libswscale.a */,
