@@ -129,17 +129,29 @@ int AVDecoder::Decode(){
 
 AVDecoder::~AVDecoder(){
     cout<<"AVDecoder destroy"<<endl;
-    // 释放avformatContext
-    avformat_close_input(&fmtCtx);
-    avformat_free_context(fmtCtx);
-    // 关闭文件
-    fclose(output);
+    // 释放数据包和数据帧
+    if (frame) {
+        av_frame_free(&frame);
+        frame = nullptr;
+    }
+    if (packet) {
+        av_packet_free(&packet);
+        packet = nullptr;
+    }
     
     // 释放codecCOntext
-    avcodec_free_context(&codecContext);
+    if (codecContext) {
+        avcodec_free_context(&codecContext);
+        codecContext = nullptr;
+    }
     
-    // 释放数据包和数据帧
-    av_frame_free(&frame);
-    av_packet_free(&packet);
+    // 释放avformatContext
+    if (fmtCtx) {
+        avformat_close_input(&fmtCtx);
+        avformat_free_context(fmtCtx);
+        fmtCtx = nullptr;
+    }
     
+    // 关闭文件
+    fclose(output);
 }
