@@ -20,6 +20,11 @@ AVDecoder::AVDecoder(const char *inputFilePath, const char *outputFilePath){
 
 void AVDecoder::Init(){
     avformat_network_init();
+    
+    frame = nullptr;
+    packet = nullptr;
+    fmtCtx = nullptr;
+    codecContext = nullptr;
 }
 
 int AVDecoder::Decode(){
@@ -32,6 +37,7 @@ int AVDecoder::Decode(){
         cout<<"open file succeed！"<<endl;
     } else {
         cout<<"fail to open file！"<<endl;
+        Destroy();
         return -1;
     }
     
@@ -41,6 +47,7 @@ int AVDecoder::Decode(){
         cout<<"successed to get stream info！"<<endl;
     } else {
         cout<<"fail to get stream info！"<<endl;
+        Destroy();
         return -1;
     }
     
@@ -48,6 +55,7 @@ int AVDecoder::Decode(){
     int audioStreamNb = av_find_best_stream(fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
     if (audioStreamNb == -1){
         cout<<"fail to find audio Stream"<<endl;
+        Destroy();
         return -1;
     }
     AVStream *audioStream = fmtCtx->streams[audioStreamNb];
@@ -59,6 +67,7 @@ int AVDecoder::Decode(){
     AVCodec *codec = avcodec_find_decoder(codecParms->codec_id);
     if (!codec) {
         cout<<"fail to find decoder！"<<endl;
+        Destroy();
         return -1;
     }
     
@@ -67,12 +76,14 @@ int AVDecoder::Decode(){
     int code = avcodec_parameters_to_context(codecContext, codecParms);
     if (code < 0) {
         cout<<"fail at [avcodec_parameters_to_context] "<<endl;
+        Destroy();
         return -1;
     }
     
     code = avcodec_open2(codecContext, codec, NULL);
     if (code < 0) {
         cout<<"fail at [avcodec_open2]"<<endl;
+        Destroy();
         return -1;
     }
     
@@ -95,6 +106,7 @@ int AVDecoder::Decode(){
         int ret = avcodec_send_packet(codecContext, packet);
         if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) {
             cout<<"fail to send packet into decoder"<<endl;
+            Destroy();
             return -1;
         } else if (ret == AVERROR_EOF) { //解码器已经读空
             return 1;
@@ -110,6 +122,7 @@ int AVDecoder::Decode(){
                 return 1;
             } else if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) { // 出现异常
                 cout<<"error accured"<<endl;
+                Destroy();
                 return -1;
             }
             // 采样格式
@@ -127,7 +140,7 @@ int AVDecoder::Decode(){
     return 1;
 }
 
-AVDecoder::~AVDecoder(){
+void AVDecoder::Destroy(){
     cout<<"AVDecoder destroy"<<endl;
     // 释放数据包和数据帧
     if (frame) {
@@ -154,4 +167,8 @@ AVDecoder::~AVDecoder(){
     
     // 关闭文件
     fclose(output);
+}
+
+AVDecoder::~AVDecoder(){
+    Destroy();
 }

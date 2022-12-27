@@ -57,6 +57,7 @@ public:
     ~AVDecoder();
     AVDecoder(const char *, const char *);
     int Decode();
+    void Destroy();
     
 };
 #endif /* AVDecoder_hpp */
