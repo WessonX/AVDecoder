@@ -105,6 +105,16 @@ int AVDecoder::decode(){
     cout<<"通道布局:"<<av_get_default_channel_layout(codecContext->channels)<<endl;
     cout<<"采样率:"<<codecContext->sample_rate<<endl;
     
+    // 设置重采样上下文的参数
+    swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt, out_sample_rate, av_get_default_channel_layout(codecContext->channels), codecContext->sample_fmt, codecContext->sample_rate, 0, 0);
+    
+    // 初始化重采样上下文
+    code = swr_init(swrContext);
+    if (code < 0) {
+        destroy();
+        cout<<"fail to resample.."<<endl;
+    }
+    
     
     // 读取音频帧
     packet = av_packet_alloc();
@@ -117,6 +127,7 @@ int AVDecoder::decode(){
         
         // 将数据包输入到解码器
         int ret = avcodec_send_packet(codecContext, packet);
+        av_packet_unref(packet);
         if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) {
             cout<<"fail to send packet into decoder"<<endl;
             destroy();
@@ -124,6 +135,7 @@ int AVDecoder::decode(){
         } else if (ret == AVERROR_EOF) { //解码器已经读空
             return 1;
         }
+        
         
         // 从解码器中循环获取数据帧
         while(true) {
@@ -141,7 +153,7 @@ int AVDecoder::decode(){
             // 采样深度
             int numBytes = av_get_bytes_per_sample(codecContext->sample_fmt);
             
-            if (!needResample(codecContext)) {
+            if (needResample(codecContext)) {
                 int code = resample(codecContext, frame);
                 if (!code) {
                     cout<<"fail to resample"<<endl;
@@ -158,28 +170,18 @@ int AVDecoder::decode(){
                     fwrite(frame->data[channel] + numBytes * i, numBytes, 1, output);
                 }
             }
+            av_frame_unref(frame);
         }
     }
     return 1;
 }
 
 bool AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
-    // 设置重采样上下文的参数
-    swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt, out_sample_rate, av_get_default_channel_layout(codecContext->channels), codecContext->sample_fmt, codecContext->sample_rate, 0, 0);
-    
-    // 初始化重采样上下文
-    int code = swr_init(swrContext);
-    if (code < 0) {
-        destroy();
-        cout<<"fail to resample.."<<endl;
-        return false;
-    }
-    
     // 计算重新采样后，每个frame的sample数目
     int dst_nb_samples = (int)av_rescale_rnd(frame->nb_samples, out_sample_rate,codecContext->sample_rate, AV_ROUND_UP);
         
     // 将frame进行格式转换
-    code = swr_convert(swrContext, outdata, dst_nb_samples,(const uint8_t **)frame->data, frame->nb_samples);
+    int code = swr_convert(swrContext, outdata, dst_nb_samples,(const uint8_t **)frame->data, frame->nb_samples);
     
     // 输出格式下，每个样本的采样深度
     int numBytes = av_get_bytes_per_sample(out_sample_fmt);
@@ -189,7 +191,7 @@ bool AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
             fwrite(outdata[channel] + numBytes * i, numBytes, 1, output);
         }
     }
-    
+    av_frame_unref(frame);
     if (code < 0) {
         destroy();
         return false;
@@ -202,10 +204,12 @@ void AVDecoder::destroy(){
     cout<<"AVDecoder destroy"<<endl;
     // 释放数据包和数据帧
     if (frame) {
+        av_frame_unref(frame);
         av_frame_free(&frame);
         frame = nullptr;
     }
     if (packet) {
+        av_packet_unref(packet);
         av_packet_free(&packet);
         packet = nullptr;
     }
@@ -234,6 +238,8 @@ void AVDecoder::destroy(){
     if (outdata[0] && outdata[1]) {
         free(outdata[0]);
         free(outdata[1]);
+        outdata[0] = nullptr;
+        outdata[1] = nullptr;
         
     }
 }
