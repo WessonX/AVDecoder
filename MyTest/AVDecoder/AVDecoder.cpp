@@ -21,10 +21,22 @@ AVDecoder::AVDecoder(const char *inputFilePath, const char *outputFilePath){
 void AVDecoder::init(){
     avformat_network_init();
     
+    // 解码相关变量
     frame = nullptr;
     packet = nullptr;
     fmtCtx = nullptr;
     codecContext = nullptr;
+    
+    // 重采样参数
+    swrContext = nullptr;
+    out_ch_layout = av_get_default_channel_layout(OUT_CHANNELS);
+    out_sample_rate = OUT_SAMPLE_RATE;
+    out_sample_fmt = OUT_SAMPLE_FMT;
+    
+    // 为输出缓冲区分配空间
+    outdata[0] = (uint8_t *)av_malloc(1152 * 8);
+    outdata[1] = (uint8_t *)av_malloc(1152 * 8);
+
 }
 
 int AVDecoder::decode(){
@@ -126,8 +138,18 @@ int AVDecoder::decode(){
                 destroy();
                 return -1;
             }
-            // 采样格式
+            // 采样深度
             int numBytes = av_get_bytes_per_sample(codecContext->sample_fmt);
+            
+            if (!needResample(codecContext)) {
+                int code = resample(codecContext, frame);
+                if (!code) {
+                    cout<<"fail to resample"<<endl;
+                    destroy();
+                    return -1;
+                }
+                continue;
+            }
             
             // AVFrame采用的是LLLLRRRRR的planar格式，左右声道数据分开排列。
             // pcm采用的是packed格式，即LRLRLR形，左右声道数据交叉排列。
@@ -139,6 +161,41 @@ int AVDecoder::decode(){
         }
     }
     return 1;
+}
+
+bool AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
+    // 设置重采样上下文的参数
+    swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt, out_sample_rate, av_get_default_channel_layout(codecContext->channels), codecContext->sample_fmt, codecContext->sample_rate, 0, 0);
+    
+    // 初始化重采样上下文
+    int code = swr_init(swrContext);
+    if (code < 0) {
+        destroy();
+        cout<<"fail to resample.."<<endl;
+        return false;
+    }
+    
+    // 计算重新采样后，每个frame的sample数目
+    int dst_nb_samples = (int)av_rescale_rnd(frame->nb_samples, out_sample_rate,codecContext->sample_rate, AV_ROUND_UP);
+        
+    // 将frame进行格式转换
+    code = swr_convert(swrContext, outdata, dst_nb_samples,(const uint8_t **)frame->data, frame->nb_samples);
+    
+    // 输出格式下，每个样本的采样深度
+    int numBytes = av_get_bytes_per_sample(out_sample_fmt);
+
+    for (int i = 0; i < dst_nb_samples; ++i) {
+        for(int channel = 0; channel < frame->channels; ++channel) {
+            fwrite(outdata[channel] + numBytes * i, numBytes, 1, output);
+        }
+    }
+    
+    if (code < 0) {
+        destroy();
+        return false;
+    }
+    
+    return true;
 }
 
 void AVDecoder::destroy(){
@@ -166,10 +223,30 @@ void AVDecoder::destroy(){
         fmtCtx = nullptr;
     }
     
+    // 释放swrContext
+    if (swrContext) {
+        swr_free(&swrContext);
+    }
+    
     // 关闭文件
     fclose(output);
+    
+    if (outdata[0] && outdata[1]) {
+        free(outdata[0]);
+        free(outdata[1]);
+        
+    }
 }
 
+
+/// 判断是否需要重新采样
+/// - Parameter codecContext: 待判断数据的编码格式
+bool AVDecoder::needResample(AVCodecContext *codecContext) {
+    if (codecContext->sample_fmt == out_sample_fmt && codecContext->sample_rate == out_sample_rate) {
+        return false;
+    }
+    return true;
+}
 AVDecoder::~AVDecoder(){
     destroy();
 }
