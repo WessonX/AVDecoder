@@ -12,13 +12,13 @@ AVDecoder::AVDecoder(const char *inputFilePath, const char *outputFilePath){
     this->inputFilePath = inputFilePath;
     this->outputFilePath = outputFilePath;
     
-    Init();
+    init();
     
     output = fopen(outputFilePath, "wb+");
     cout<<"AVDecoder initialize with filepath"<<endl;
 }
 
-void AVDecoder::Init(){
+void AVDecoder::init(){
     avformat_network_init();
     
     frame = nullptr;
@@ -27,7 +27,7 @@ void AVDecoder::Init(){
     codecContext = nullptr;
 }
 
-int AVDecoder::Decode(){
+int AVDecoder::decode(){
     // 构造avformatContext
     fmtCtx = avformat_alloc_context();
     
@@ -37,7 +37,7 @@ int AVDecoder::Decode(){
         cout<<"open file succeed！"<<endl;
     } else {
         cout<<"fail to open file！"<<endl;
-        Destroy();
+        destroy();
         return -1;
     }
     
@@ -47,7 +47,7 @@ int AVDecoder::Decode(){
         cout<<"successed to get stream info！"<<endl;
     } else {
         cout<<"fail to get stream info！"<<endl;
-        Destroy();
+        destroy();
         return -1;
     }
     
@@ -55,7 +55,7 @@ int AVDecoder::Decode(){
     int audioStreamNb = av_find_best_stream(fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
     if (audioStreamNb == -1){
         cout<<"fail to find audio Stream"<<endl;
-        Destroy();
+        destroy();
         return -1;
     }
     AVStream *audioStream = fmtCtx->streams[audioStreamNb];
@@ -67,7 +67,7 @@ int AVDecoder::Decode(){
     AVCodec *codec = avcodec_find_decoder(codecParms->codec_id);
     if (!codec) {
         cout<<"fail to find decoder！"<<endl;
-        Destroy();
+        destroy();
         return -1;
     }
     
@@ -76,20 +76,21 @@ int AVDecoder::Decode(){
     int code = avcodec_parameters_to_context(codecContext, codecParms);
     if (code < 0) {
         cout<<"fail at [avcodec_parameters_to_context] "<<endl;
-        Destroy();
+        destroy();
         return -1;
     }
     
     code = avcodec_open2(codecContext, codec, NULL);
     if (code < 0) {
         cout<<"fail at [avcodec_open2]"<<endl;
-        Destroy();
+        destroy();
         return -1;
     }
     
     cout<<"解码器名称:"<<codec->name<<endl;
     cout<<"采样格式:"<<codec->sample_fmts<<endl;
     cout<<"通道数:"<<codecContext->channels<<endl;
+    cout<<"通道布局:"<<av_get_default_channel_layout(codecContext->channels)<<endl;
     cout<<"采样率:"<<codecContext->sample_rate<<endl;
     
     
@@ -106,7 +107,7 @@ int AVDecoder::Decode(){
         int ret = avcodec_send_packet(codecContext, packet);
         if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) {
             cout<<"fail to send packet into decoder"<<endl;
-            Destroy();
+            destroy();
             return -1;
         } else if (ret == AVERROR_EOF) { //解码器已经读空
             return 1;
@@ -122,7 +123,7 @@ int AVDecoder::Decode(){
                 return 1;
             } else if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) { // 出现异常
                 cout<<"error accured"<<endl;
-                Destroy();
+                destroy();
                 return -1;
             }
             // 采样格式
@@ -140,7 +141,7 @@ int AVDecoder::Decode(){
     return 1;
 }
 
-void AVDecoder::Destroy(){
+void AVDecoder::destroy(){
     cout<<"AVDecoder destroy"<<endl;
     // 释放数据包和数据帧
     if (frame) {
@@ -170,5 +171,5 @@ void AVDecoder::Destroy(){
 }
 
 AVDecoder::~AVDecoder(){
-    Destroy();
+    destroy();
 }

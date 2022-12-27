@@ -51,13 +51,15 @@ private:
     AVFrame *frame;
     
     // 初始化函数
-    void Init();
+    void init();
+    
+    // 
     
 public:
     ~AVDecoder();
     AVDecoder(const char *, const char *);
-    int Decode();
-    void Destroy();
+    int decode();
+    void destroy();
     
 };
 #endif /* AVDecoder_hpp */

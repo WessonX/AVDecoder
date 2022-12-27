@@ -26,7 +26,7 @@
     const char *outputFilePath = [[CommonUtil documentPath:@"132.pcm"] cStringUsingEncoding:NSUTF8StringEncoding];
     
     AVDecoder *decoder = new AVDecoder(inputFilePath,outputFilePath);
-    int ret = decoder->Decode();
+    int ret = decoder->decode();
     if (ret == 1) {
         cout<<"解码成功！"<<endl;
     } else {
