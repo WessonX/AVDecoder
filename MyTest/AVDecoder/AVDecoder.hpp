@@ -57,7 +57,7 @@ private:
     void init();
     
     /// 重采样
-    bool resample(AVCodecContext *, AVFrame *);
+    int resample(AVCodecContext *, AVFrame *);
     
     // 重采样上下文
     SwrContext *swrContext;

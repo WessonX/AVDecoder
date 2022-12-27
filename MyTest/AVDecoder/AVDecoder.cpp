@@ -105,17 +105,6 @@ int AVDecoder::decode(){
     cout<<"通道布局:"<<av_get_default_channel_layout(codecContext->channels)<<endl;
     cout<<"采样率:"<<codecContext->sample_rate<<endl;
     
-    // 设置重采样上下文的参数
-    swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt, out_sample_rate, av_get_default_channel_layout(codecContext->channels), codecContext->sample_fmt, codecContext->sample_rate, 0, 0);
-    
-    // 初始化重采样上下文
-    code = swr_init(swrContext);
-    if (code < 0) {
-        destroy();
-        cout<<"fail to resample.."<<endl;
-    }
-    
-    
     // 读取音频帧
     packet = av_packet_alloc();
     frame = av_frame_alloc();
@@ -127,6 +116,9 @@ int AVDecoder::decode(){
         
         // 将数据包输入到解码器
         int ret = avcodec_send_packet(codecContext, packet);
+        
+        // 切记要解除packet对于其内部缓冲区的引用。 因为每次调用read_frame，都会新malloc一块缓冲区。所以数据用完就要及时释放掉！
+        // 对于frame的内部缓冲区的解引用同理！
         av_packet_unref(packet);
         if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) {
             cout<<"fail to send packet into decoder"<<endl;
@@ -151,23 +143,30 @@ int AVDecoder::decode(){
                 return -1;
             }
             // 采样深度
-            int numBytes = av_get_bytes_per_sample(codecContext->sample_fmt);
+            int numBytes = av_get_bytes_per_sample(out_sample_fmt);
             
+            // 目标格式的每帧采样数目
+            int nb_samples = 0;
+            // 如果格式不符，则进行重采样
             if (needResample(codecContext)) {
-                int code = resample(codecContext, frame);
-                if (!code) {
+                nb_samples = resample(codecContext, frame);
+                if (nb_samples < 0) {
                     cout<<"fail to resample"<<endl;
                     destroy();
                     return -1;
                 }
-                continue;
+            } else {
+                nb_samples = frame->nb_samples;
             }
-            
             // AVFrame采用的是LLLLRRRRR的planar格式，左右声道数据分开排列。
             // pcm采用的是packed格式，即LRLRLR形，左右声道数据交叉排列。
-            for (int i = 0; i < frame->nb_samples; ++i) {
-                for (int channel = 0; channel< codecContext->channels; ++channel) {
-                    fwrite(frame->data[channel] + numBytes * i, numBytes, 1, output);
+            for (int i = 0; i < nb_samples; ++i) {
+                for (int channel = 0; channel< OUT_CHANNELS; ++channel) {
+                    if(needResample(codecContext)) {
+                        fwrite(outdata[channel] + numBytes * i, numBytes, 1, output);
+                    } else {
+                        fwrite(frame->data[channel] + numBytes * i, numBytes, 1, output);
+                    }
                 }
             }
             av_frame_unref(frame);
@@ -176,28 +175,31 @@ int AVDecoder::decode(){
     return 1;
 }
 
-bool AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
+int AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
+    if (!swrContext) {
+        // 设置重采样上下文的参数
+        swrContext = swr_alloc_set_opts(NULL, out_ch_layout, out_sample_fmt, out_sample_rate, av_get_default_channel_layout(codecContext->channels), codecContext->sample_fmt, codecContext->sample_rate, 0, 0);
+        
+        // 初始化重采样上下文
+        int code = swr_init(swrContext);
+        if (code < 0) {
+            destroy();
+            cout<<"fail to resample.."<<endl;
+            return -1;
+        }
+    }
     // 计算重新采样后，每个frame的sample数目
     int dst_nb_samples = (int)av_rescale_rnd(frame->nb_samples, out_sample_rate,codecContext->sample_rate, AV_ROUND_UP);
         
     // 将frame进行格式转换
     int code = swr_convert(swrContext, outdata, dst_nb_samples,(const uint8_t **)frame->data, frame->nb_samples);
     
-    // 输出格式下，每个样本的采样深度
-    int numBytes = av_get_bytes_per_sample(out_sample_fmt);
-
-    for (int i = 0; i < dst_nb_samples; ++i) {
-        for(int channel = 0; channel < frame->channels; ++channel) {
-            fwrite(outdata[channel] + numBytes * i, numBytes, 1, output);
-        }
-    }
     av_frame_unref(frame);
     if (code < 0) {
         destroy();
-        return false;
     }
     
-    return true;
+    return code;
 }
 
 void AVDecoder::destroy(){
