@@ -86,16 +86,32 @@ int AVDecoder::Decode(){
     packet = av_packet_alloc();
     frame = av_frame_alloc();
 
-    // 循环从流中读取数据包
-    while(av_read_frame(fmtCtx, packet) >= 0){
+    while(true){
+        
+        // 循环从流中读取数据包
+        av_read_frame(fmtCtx, packet);
+        
         // 将数据包输入到解码器
         int ret = avcodec_send_packet(codecContext, packet);
-        if (ret) {
+        if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) {
             cout<<"fail to send packet into decoder"<<endl;
             return -1;
+        } else if (ret == AVERROR_EOF) { //解码器已经读空
+            return 1;
         }
+        
         // 从解码器中循环获取数据帧
-        while(!avcodec_receive_frame(codecContext, frame)) {
+        while(true) {
+            ret =  avcodec_receive_frame(codecContext, frame);
+            // 需要继续输入packet
+            if (ret == AVERROR(EAGAIN)){
+                break;
+            } else if (ret == AVERROR_EOF) { // 解码器已经读空
+                return 1;
+            } else if (ret == AVERROR(EINVAL) || ret == AVERROR(ENOMEM)) { // 出现异常
+                cout<<"error accured"<<endl;
+                return -1;
+            }
             // 采样格式
             int numBytes = av_get_bytes_per_sample(codecContext->sample_fmt);
             
