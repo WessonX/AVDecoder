@@ -72,7 +72,7 @@ private:
     int64_t out_ch_layout;
     
     // 存储重采样后的数据
-    uint8_t *outdata[2] = {0};
+    uint8_t **outdata;
     
     // 判断是否需要重新采样
     bool needResample(AVCodecContext *);

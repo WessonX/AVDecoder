@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "AVDecoder::resample(AVCodecContext*, AVFrame*):AVDecoder.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "outdata">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "AVDecoder::decode():AVDecoder.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "outdata">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

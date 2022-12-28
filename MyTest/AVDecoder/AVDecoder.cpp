@@ -32,10 +32,8 @@ void AVDecoder::init(){
     out_ch_layout = av_get_default_channel_layout(OUT_CHANNELS);
     out_sample_rate = OUT_SAMPLE_RATE;
     out_sample_fmt = OUT_SAMPLE_FMT;
-    
-    // 为输出缓冲区分配空间
-    outdata[0] = (uint8_t *)av_malloc(1152 * 8);
-    outdata[1] = (uint8_t *)av_malloc(1152 * 8);
+        
+    outdata = nullptr;
 
 }
 
@@ -191,6 +189,15 @@ int AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
     // 计算重新采样后，每个frame的sample数目
     int dst_nb_samples = (int)av_rescale_rnd(frame->nb_samples, out_sample_rate,codecContext->sample_rate, AV_ROUND_UP);
         
+    // 为输出缓冲区分配空间
+    if (!outdata) {
+        outdata = new uint8_t*[OUT_CHANNELS];
+        int size = av_samples_get_buffer_size(NULL, OUT_CHANNELS, dst_nb_samples,out_sample_fmt, 0);
+        for (int i = 0; i < OUT_CHANNELS; ++i) {
+            outdata[i] = (uint8_t *)av_malloc(size);
+        }
+    }
+    
     // 将frame进行格式转换
     int code = swr_convert(swrContext, outdata, dst_nb_samples,(const uint8_t **)frame->data, frame->nb_samples);
     
@@ -237,13 +244,14 @@ void AVDecoder::destroy(){
     // 关闭文件
     fclose(output);
     
-    if (outdata[0] && outdata[1]) {
-        free(outdata[0]);
-        free(outdata[1]);
-        outdata[0] = nullptr;
-        outdata[1] = nullptr;
-        
+    // 释放缓冲区
+    for (int i = 0; i < OUT_CHANNELS; ++i) {
+        if (outdata[i]) {
+            free(outdata[i]);
+            outdata[i] = nullptr;
+        }
     }
+    delete []outdata;
 }
 
 
