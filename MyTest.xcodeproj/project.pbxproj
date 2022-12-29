@@ -16,6 +16,8 @@
 		2D410D0C28F272B9009593AE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D410D0A28F272B9009593AE /* LaunchScreen.storyboard */; };
 		2D410D0F28F272B9009593AE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D410D0E28F272B9009593AE /* main.m */; };
 		2DC8E9B2294CAF2E0015FC49 /* 16k16bit.pcm in Resources */ = {isa = PBXBuildFile; fileRef = 2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */; };
+		2DD0D0D5295C6B9D0034C2EE /* big_buck_bunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */; };
+		2DD0D0D7295C83120034C2EE /* test.flv in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D6295C83120034C2EE /* test.flv */; };
 		2DD1786A2951DDC70057B9BC /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD178692951DDC70057B9BC /* AudioToolbox.framework */; };
 		2DD1786C2951DDD40057B9BC /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD1786B2951DDD40057B9BC /* VideoToolbox.framework */; };
 		2DD179452951ED540057B9BC /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD179442951ED540057B9BC /* libz.tbd */; };
@@ -65,6 +67,8 @@
 		2D410D1428F272B9009593AE /* MyTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D410D1E28F272B9009593AE /* MyTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = 16k16bit.pcm; sourceTree = "<group>"; };
+		2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_buck_bunny.mp4; sourceTree = "<group>"; };
+		2DD0D0D6295C83120034C2EE /* test.flv */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.flv; sourceTree = "<group>"; };
 		2DD178692951DDC70057B9BC /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		2DD1786B2951DDD40057B9BC /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		2DD179442951ED540057B9BC /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -283,6 +287,8 @@
 				2D410D0828F272B9009593AE /* Assets.xcassets */,
 				2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */,
 				2D31EF8229597385006BECB8 /* 131.aac */,
+				2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */,
+				2DD0D0D6295C83120034C2EE /* test.flv */,
 				2D410D0A28F272B9009593AE /* LaunchScreen.storyboard */,
 				2D410D0D28F272B9009593AE /* Info.plist */,
 				2D410D0E28F272B9009593AE /* main.m */,
@@ -626,7 +632,9 @@
 			files = (
 				2D31EF832959950B006BECB8 /* 131.aac in Resources */,
 				2DC8E9B2294CAF2E0015FC49 /* 16k16bit.pcm in Resources */,
+				2DD0D0D5295C6B9D0034C2EE /* big_buck_bunny.mp4 in Resources */,
 				2D410D0C28F272B9009593AE /* LaunchScreen.storyboard in Resources */,
+				2DD0D0D7295C83120034C2EE /* test.flv in Resources */,
 				2D410D0928F272B9009593AE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
