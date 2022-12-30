@@ -114,6 +114,11 @@ int AVDecoder::decode(){
             destroy();
             return ret;
         }
+        cout<<"audioCodecName:"<<audioCodecCtx->codec->name<<endl;
+        cout<<"bit-rate:"<<audioCodecCtx->bit_rate<<endl;
+        cout<<"sample_rate:"<<audioCodecCtx->sample_rate<<endl;
+        cout<<"sample_fmt:"<< av_get_sample_fmt_name(audioCodecCtx->sample_fmt)<<endl;
+        cout<<"channels:"<<audioCodecCtx->channels<<endl;
     }
     if (videoStream) {
         ret = createCodecCtx(videoStream);
@@ -132,6 +137,7 @@ int AVDecoder::decode(){
         }
         video_dst_bufsize = ret;
         
+        cout<<"videoCodecName:"<<videoCodecCtx->codec->name<<endl;
         cout<<"width:"<<width<<endl;
         cout<<"height:"<<height<<endl;
         cout<<"pixel_fmt:"<<av_get_pix_fmt_name(pix_fmt)<<endl;
