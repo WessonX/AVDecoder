@@ -30,14 +30,20 @@ void AVDecoder::init(){
     audioCodecCtx = nullptr;
     videoCodecCtx = nullptr;
     
-    // 重采样参数
+    // 音频重采样参数
     swrContext = nullptr;
     out_ch_layout = av_get_default_channel_layout(OUT_CHANNELS);
     out_sample_rate = OUT_SAMPLE_RATE;
     out_sample_fmt = OUT_SAMPLE_FMT;
         
     outdata = nullptr;
-
+    
+    // 图像格式转换参数
+    swsContext = nullptr;
+    dst_width = DST_WIDTH;
+    dst_height = DST_HEIGHT;
+    dst_pix_fmt = DST_PIX_FMT;
+    
 }
 
 int AVDecoder::decode(){
@@ -239,11 +245,23 @@ int AVDecoder::out_audio_frame(AVFrame *frame){
 }
 
 int AVDecoder::out_video_frame(AVFrame *frame){
-    av_image_copy(video_dst_data, video_dst_linesize, (const uint8_t **)(frame->data), frame->linesize, pix_fmt, width, height);
-    // video_dst_data 经过av_image_copy 之后，将可能存在的填充数据都去除掉了，video_dst_data[0] 存储y分量， video_dst_data[1]存储u分量，video_dst_data[2]存储v分量。
     
-    //下面直接read了整个frame大小的数据，是因为，yuv分量的三个数组是连续存储的，从video_dst_data[0]的起始地址开始，读video_dst_bufsize，实际就把整个帧都读完了，就不需要再分别的读data[0],data[1],data[2].
-    fwrite(video_dst_data[0], 1, video_dst_bufsize, videoOutput);
+    // video_dst_data 经过av_image_copy 之后，将可能存在的填充数据都去除掉了，video_dst_data[0] 存储y分量， video_dst_data[1]存储u分量，video_dst_data[2]存储v分量。
+    av_image_copy(video_dst_data, video_dst_linesize, (const uint8_t **)(frame->data), frame->linesize, pix_fmt, width, height);
+    
+    // 判断图像格式是否需要转换
+    if (needScale(videoCodecCtx)) {
+        int ret = rescale(video_dst_data);
+        if (ret < 0) {
+            cout<<"fail to scale"<<endl;
+            return ret;
+        }
+        fwrite(scaled_data[0], 1, scaled_buffer_size, videoOutput);
+    } else {
+        
+        //下面直接read了整个frame大小的数据，是因为，yuv分量的三个数组是连续存储的，从video_dst_data[0]的起始地址开始，读video_dst_bufsize，实际就把整个帧都读完了，就不需要再分别的读data[0],data[1],data[2].
+        fwrite(video_dst_data[0], 1, video_dst_bufsize, videoOutput);
+    }
     return 0;
 }
 
@@ -315,7 +333,7 @@ int AVDecoder::resample(AVCodecContext *codecContext, AVFrame *frame){
     // 将frame进行格式转换
     int code = swr_convert(swrContext, outdata, dst_nb_samples,(const uint8_t **)frame->data, frame->nb_samples);
     
-    av_frame_unref(frame);
+//    av_frame_unref(frame);
     if (code < 0) {
         destroy();
     }
@@ -361,6 +379,11 @@ void AVDecoder::destroy(){
         swr_free(&swrContext);
     }
     
+    // 释放swsContext
+    if (swsContext) {
+        sws_freeContext(swsContext);
+    }
+    
     // 关闭文件
     fclose(audioOutput);
     fclose(videoOutput);
@@ -376,18 +399,60 @@ void AVDecoder::destroy(){
         delete []outdata;
     }
     
-    av_free(video_dst_data[0]);
+    if (video_dst_data[0]) {
+        av_free(video_dst_data[0]);
+    }
+    
+    if (scaled_data[0]){
+        av_free(scaled_data[0]);
+    }
 }
 
-
-/// 判断是否需要重新采样
-/// - Parameter codecContext: 待判断数据的编码格式
 bool AVDecoder::needResample(AVCodecContext *codecContext) {
     if (codecContext->sample_fmt == out_sample_fmt && codecContext->sample_rate == out_sample_rate) {
         return false;
     }
     return true;
 }
+
 AVDecoder::~AVDecoder(){
     destroy();
+}
+
+bool AVDecoder::needScale(AVCodecContext *codecContext) {
+    if (width == dst_width && height == dst_height && pix_fmt == dst_pix_fmt) {
+        return false;
+    }
+    return true ;
+}
+
+int AVDecoder::rescale(uint8_t *buffer[]) {
+    int ret = 0;
+    if(!swsContext) {
+        swsContext = sws_getContext(width, height, pix_fmt,
+                                    dst_width, dst_height, dst_pix_fmt,
+                                    SWS_BILINEAR, NULL, NULL, NULL);
+        if (!swsContext) {
+            cout<<"impossible to create scale context for the conversion"<<endl;
+            ret = AVERROR(EINVAL);
+            destroy();
+            return ret;
+        }
+        
+    }
+    
+    // 为scaled_data 分配空间
+    if (!scaled_data[0]) {
+        ret = av_image_alloc(scaled_data, scaled_linesize, dst_width, dst_height, dst_pix_fmt, 1);
+        if(ret < 0) {
+            cout<<"could not allocate raw video buffer"<<endl;
+            destroy();
+            return ret;
+        }
+        scaled_buffer_size = ret;
+    }
+    
+    // 将输入的buffer数据，格式转换，存储到scaled_data中
+    ret = sws_scale(swsContext, buffer, video_dst_linesize, 0, height, scaled_data, scaled_linesize);
+    return 0;
 }

@@ -13,9 +13,16 @@
 #include <string>
 using namespace std;
 
+// 目标音频的参数
 #define OUT_CHANNELS 2
 #define OUT_SAMPLE_RATE 44100
 #define OUT_SAMPLE_FMT AV_SAMPLE_FMT_S16P
+
+// 目标视频的参数
+#define DST_WIDTH 400
+#define DST_HEIGHT 400
+#define DST_PIX_FMT AV_PIX_FMT_YUV420P
+
 extern "C" {
     #include "libavcodec/avcodec.h"
     #include "libavformat/avformat.h"
@@ -122,6 +129,35 @@ private:
     
     // 判断是否需要重新采样
     bool needResample(AVCodecContext *);
+    
+    /**视频格式转换相关参数**/
+    
+    // 图像格式转换上下文
+    SwsContext *swsContext;
+    
+    // 目标高度
+    int dst_height;
+    
+    // 目标宽度
+    int dst_width;
+    
+    // 格式转换后的数据
+    uint8_t *scaled_data[4] = {NULL};
+    
+    // 格式转换后数据的字节数
+    int scaled_buffer_size;
+    
+    // 格式转换后的数据的行大小
+    int scaled_linesize[4];
+    
+    // 目标像素格式
+    AVPixelFormat dst_pix_fmt;
+    
+    // 判断是否需要格式转换
+    bool needScale(AVCodecContext *);
+    
+    // 图像格式转换
+    int rescale(uint8_t *[]);
     
     
 public:
