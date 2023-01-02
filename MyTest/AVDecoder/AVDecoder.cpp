@@ -7,6 +7,7 @@
 
 #include "AVDecoder.hpp"
 #include "avformat.h"
+using namespace std;
 
 AVDecoder::AVDecoder(const char *inputFilePath, const char *outputAudioFilePath, const char *outputVideoFilePath){
     this->inputFilePath = inputFilePath;
@@ -17,7 +18,14 @@ AVDecoder::AVDecoder(const char *inputFilePath, const char *outputAudioFilePath,
     
     audioOutput = fopen(outputAudioFilePath, "wb+");
     videoOutput = fopen(outputVideoFilePath, "wb+");
-    cout<<"AVDecoder initialize with filepath"<<endl;
+    cout<<"AVDecoder initialize with src_filepath and dst_paths"<<endl;
+}
+
+AVDecoder::AVDecoder(const char *src_path, std::queue<SampleFrame>*audioqueue) {
+    this->inputFilePath = src_path;
+    this->audioQueue = audioqueue;
+    init();
+    cout<<"AVDecoder initialize with src_filepath"<<endl;
 }
 
 void AVDecoder::init(){
@@ -233,12 +241,27 @@ int AVDecoder::out_audio_frame(AVFrame *frame){
     // AVFrame采用的是LLLLRRRRR的planar格式，左右声道数据分开排列。
     // pcm采用的是packed格式，即LRLRLR形，左右声道数据交叉排列。
     for (int i = 0; i < nb_samples; ++i) {
-        for (int channel = 0; channel< OUT_CHANNELS; ++channel) {
+        SampleFrame *sampleFrame;
+        bool isNewFrame = false;
+        if (!this->audioQueue->empty() && this->audioQueue->back().frameCnt < 1024) {
+            sampleFrame = &this->audioQueue->back();
+        } else {
+            isNewFrame = true;
+            sampleFrame = new SampleFrame();
+            sampleFrame->data = (uint8_t *) malloc(numBytes * 2 * 1024);
+        }
+        for (int channel = 0; channel < OUT_CHANNELS; ++channel) {
             if(needResample(audioCodecCtx)) {
-                fwrite(outdata[channel] + numBytes * i, numBytes, 1, audioOutput);
+                memcpy(sampleFrame->data + sampleFrame->frameCnt * numBytes * 2 + channel * numBytes, outdata[channel] + numBytes * i, numBytes);
+//                fwrite(outdata[channel] + numBytes * i, numBytes, 1, audioOutput);
             } else {
-                fwrite(frame->data[channel] + numBytes * i, numBytes, 1, audioOutput);
+                memcpy(sampleFrame->data + sampleFrame->frameCnt * numBytes * 2 + channel * numBytes, frame->data[channel] + numBytes * i, numBytes);
+//                fwrite(frame->data[channel] + numBytes * i, numBytes, 1, audioOutput);
             }
+        }
+        sampleFrame->frameCnt += 1;
+        if (isNewFrame) {
+            this->audioQueue->push(*sampleFrame);
         }
     }
     return 0;
@@ -256,11 +279,11 @@ int AVDecoder::out_video_frame(AVFrame *frame){
             cout<<"fail to scale"<<endl;
             return ret;
         }
-        fwrite(scaled_data[0], 1, scaled_buffer_size, videoOutput);
+//        fwrite(scaled_data[0], 1, scaled_buffer_size, videoOutput);
     } else {
         
         //下面直接read了整个frame大小的数据，是因为，yuv分量的三个数组是连续存储的，从video_dst_data[0]的起始地址开始，读video_dst_bufsize，实际就把整个帧都读完了，就不需要再分别的读data[0],data[1],data[2].
-        fwrite(video_dst_data[0], 1, video_dst_bufsize, videoOutput);
+//        fwrite(video_dst_data[0], 1, video_dst_bufsize, videoOutput);
     }
     return 0;
 }
@@ -385,8 +408,8 @@ void AVDecoder::destroy(){
     }
     
     // 关闭文件
-    fclose(audioOutput);
-    fclose(videoOutput);
+//    if (audioOutput) fclose(audioOutput);
+//    if (videoOutput) fclose(videoOutput);
     
     // 释放缓冲区
     if (outdata) {

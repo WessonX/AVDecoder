@@ -11,7 +11,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
-using namespace std;
+#include <queue>
+
 
 // 目标音频的参数
 #define OUT_CHANNELS 2
@@ -37,6 +38,16 @@ extern "C" {
     #include "libswresample/swresample.h"
 };
 
+// 采样帧 （一个样本就是一帧）    //todo: 改完之后，不能叫sampleFrame，因为为了方便填充数据，将若干样本帧存放在了一起。
+struct SampleFrame {
+    // 存储数据
+    uint8_t *data;
+    
+    // 帧数目
+    int frameCnt = 0;
+};
+
+
 class AVDecoder{
 private:
     // 输入文件的路径
@@ -47,6 +58,9 @@ private:
     
     // 输出视频文件的保存路径
     const char *outputVideoFilePath;
+    
+    // 指向采样帧队列的指针
+    std::queue<SampleFrame> *audioQueue;
     
     // 输出音频文件的句柄
     FILE *audioOutput;
@@ -163,6 +177,7 @@ private:
 public:
     ~AVDecoder();
     AVDecoder(const char *, const char *, const char *);
+    AVDecoder(const char *,std::queue<SampleFrame>*);
     int decode();
     void destroy();
     

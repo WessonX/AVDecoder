@@ -15,6 +15,8 @@
 		2D410D0928F272B9009593AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D410D0828F272B9009593AE /* Assets.xcassets */; };
 		2D410D0C28F272B9009593AE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D410D0A28F272B9009593AE /* LaunchScreen.storyboard */; };
 		2D410D0F28F272B9009593AE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D410D0E28F272B9009593AE /* main.m */; };
+		2D4B529B296076AA004A4014 /* AudioPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D4B529A296076AA004A4014 /* AudioPlayer.mm */; };
+		2D4E769929629C1F00BA76A8 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D4E769829629C1F00BA76A8 /* AVFoundation.framework */; };
 		2DC8E9B2294CAF2E0015FC49 /* 16k16bit.pcm in Resources */ = {isa = PBXBuildFile; fileRef = 2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */; };
 		2DD0D0D5295C6B9D0034C2EE /* big_buck_bunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */; };
 		2DD0D0D7295C83120034C2EE /* test.flv in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D6295C83120034C2EE /* test.flv */; };
@@ -66,6 +68,9 @@
 		2D410D0E28F272B9009593AE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2D410D1428F272B9009593AE /* MyTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D410D1E28F272B9009593AE /* MyTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D4B5299296076AA004A4014 /* AudioPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioPlayer.h; sourceTree = "<group>"; };
+		2D4B529A296076AA004A4014 /* AudioPlayer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioPlayer.mm; sourceTree = "<group>"; };
+		2D4E769829629C1F00BA76A8 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = 16k16bit.pcm; sourceTree = "<group>"; };
 		2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_buck_bunny.mp4; sourceTree = "<group>"; };
 		2DD0D0D6295C83120034C2EE /* test.flv */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.flv; sourceTree = "<group>"; };
@@ -213,6 +218,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D4E769929629C1F00BA76A8 /* AVFoundation.framework in Frameworks */,
 				2DD17A822951F8290057B9BC /* libavfilter.a in Frameworks */,
 				2DD179F42951F7E60057B9BC /* CoreMedia.framework in Frameworks */,
 				2DD179492951ED690057B9BC /* libiconv.tbd in Frameworks */,
@@ -277,6 +283,7 @@
 		2D410CFB28F272B9009593AE /* MyTest */ = {
 			isa = PBXGroup;
 			children = (
+				2D4B52982960767B004A4014 /* AudioPlayer */,
 				2D31EF7E2959725F006BECB8 /* CommonUtils */,
 				2DFECBF22958A98C002808A6 /* AVDecoder */,
 				2DD179F52951F8290057B9BC /* ffmpeg */,
@@ -296,9 +303,19 @@
 			path = MyTest;
 			sourceTree = "<group>";
 		};
+		2D4B52982960767B004A4014 /* AudioPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				2D4B5299296076AA004A4014 /* AudioPlayer.h */,
+				2D4B529A296076AA004A4014 /* AudioPlayer.mm */,
+			);
+			path = AudioPlayer;
+			sourceTree = "<group>";
+		};
 		2DD178682951DDC70057B9BC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2D4E769829629C1F00BA76A8 /* AVFoundation.framework */,
 				2DD179F32951F7E60057B9BC /* CoreMedia.framework */,
 				2DD179482951ED690057B9BC /* libiconv.tbd */,
 				2DD179462951ED610057B9BC /* libbz2.tbd */,
@@ -661,6 +678,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */,
+				2D4B529B296076AA004A4014 /* AudioPlayer.mm in Sources */,
 				2D410D0428F272B9009593AE /* ViewController.mm in Sources */,
 				2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */,
 				2D410D0F28F272B9009593AE /* main.m in Sources */,

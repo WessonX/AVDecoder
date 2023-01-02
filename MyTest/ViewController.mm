@@ -7,10 +7,12 @@
 
 #import "ViewController.h"
 #import "CommonUtil.h"
+#import "AudioPlayer.h"
 #include "AVDecoder.hpp"
 
 @interface ViewController ()
 
+@property(nonatomic, strong)AudioPlayer *player;
 @end
 
 
@@ -30,14 +32,15 @@
     
     dispatch_queue_t queue = dispatch_queue_create("myqueue",DISPATCH_QUEUE_CONCURRENT);
     dispatch_async(queue, ^{
-        AVDecoder *decoder = new AVDecoder(inputFilePath,outputAudioFilePath,outputVideoFilePath);
-        int ret = decoder->decode();
-        if (ret == 0) {
-            cout<<"解码成功！"<<endl;
-        } else {
-            cout<<"解码失败！"<<endl;
-        }
-        delete decoder;
+//        AVDecoder *decoder = new AVDecoder("https://media.w3.org/2010/05/sintel/trailer.mp4",outputAudioFilePath,outputVideoFilePath);
+//        int ret = decoder->decode();
+//        if (ret == 0) {
+//            cout<<"解码成功！"<<endl;
+//        } else {
+//            cout<<"解码失败！"<<endl;
+//        }
+//        delete decoder;
+        self.player = [[AudioPlayer alloc]initWithFilePath:@"https://media.w3.org/2010/05/sintel/trailer.mp4"];
     });
 
 }
