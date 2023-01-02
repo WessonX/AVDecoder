@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop;
 
+- (void)destroyPlayer;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -41,6 +41,7 @@ static OSStatus InputRenderCallback(void *inRefCon,
 - (instancetype)initWithFilePath:(NSString *)filePath {
     self = [super init];
     if (self) {
+        // 进行解码
         dispatch_queue_t queue = dispatch_queue_create("decodeQueue", DISPATCH_QUEUE_CONCURRENT);
         __weak typeof(self) weakSelf = self;
         dispatch_async(queue, ^{
@@ -53,7 +54,7 @@ static OSStatus InputRenderCallback(void *inRefCon,
             } else {
                 NSLog(@"解码成功");
             }
-            _avDecoder->destroy();
+            delete _avDecoder;
         });
         // 设置默认参数
         self.graphSampleRate = sample_rate;
@@ -159,10 +160,18 @@ static OSStatus InputRenderCallback(void *inRefCon,
     for (int i = 0; i < ioData->mNumberBuffers; ++i) {
         memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
         if (!_audioQueue.empty()) {
-            SampleFrame frame = _audioQueue.front();
-            _audioQueue.pop();
-            delete frame.data;
+            // 注意，queue.front（），返回的“Reference”并不是指针意义上的引用,而是一个拷贝。所以这里的frame要加&，转换为真正的引用
+            SampleFrame &frame = _audioQueue.front();
+            
+            // 将frame中的数据拷贝到ioData中
             memcpy(ioData->mBuffers[i].mData, frame.data, frame.frameCnt * 4);
+            
+            // 将frame的数据清除掉
+            delete frame.data;
+            
+            // 将frame从队列移除
+            _audioQueue.pop();
+            
         }
         
     }
@@ -195,6 +204,21 @@ static OSStatus InputRenderCallback(void *inRefCon,
     NSLog (@"  Bytes per Frame:     %10d",    asbd.mBytesPerFrame);
     NSLog (@"  Channels per Frame:  %10d",    asbd.mChannelsPerFrame);
     NSLog (@"  Bits per Channel:    %10d",    asbd.mBitsPerChannel);
+}
+
+- (void)dealloc{
+    [self destroyPlayer];
+}
+
+- (void)destroyPlayer {
+    AUGraphStop(_graph);
+    AUGraphUninitialize(_graph);
+    AUGraphClose(_graph);
+    AUGraphRemoveNode(_graph, _ioNode);
+    DisposeAUGraph(_graph);
+    _graph  = NULL;
+    _ioNode = NULL;
+    _ioUnit = NULL;
 }
 
 @end

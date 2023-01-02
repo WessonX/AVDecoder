@@ -248,20 +248,21 @@ int AVDecoder::out_audio_frame(AVFrame *frame){
         } else {
             isNewFrame = true;
             sampleFrame = new SampleFrame();
-            sampleFrame->data = (uint8_t *) malloc(numBytes * 2 * 1024);
+            sampleFrame->data = (uint8_t *) new uint8_t[numBytes * 2 * 1024];
         }
         for (int channel = 0; channel < OUT_CHANNELS; ++channel) {
             if(needResample(audioCodecCtx)) {
                 memcpy(sampleFrame->data + sampleFrame->frameCnt * numBytes * 2 + channel * numBytes, outdata[channel] + numBytes * i, numBytes);
-//                fwrite(outdata[channel] + numBytes * i, numBytes, 1, audioOutput);
             } else {
                 memcpy(sampleFrame->data + sampleFrame->frameCnt * numBytes * 2 + channel * numBytes, frame->data[channel] + numBytes * i, numBytes);
-//                fwrite(frame->data[channel] + numBytes * i, numBytes, 1, audioOutput);
             }
         }
         sampleFrame->frameCnt += 1;
         if (isNewFrame) {
             this->audioQueue->push(*sampleFrame);
+            
+            // push 到队列，实际上是会将sampleFrame所指向的结构体的内容复制一份，然后加入到队列中。所以本地的结构体需要释放掉
+            delete sampleFrame;
         }
     }
     return 0;
