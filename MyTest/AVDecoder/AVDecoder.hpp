@@ -38,12 +38,15 @@ extern "C" {
     #include "libswresample/swresample.h"
 };
 
-// 采样帧 （一个样本就是一帧）    //todo: 改完之后，不能叫sampleFrame，因为为了方便填充数据，将若干样本帧存放在了一起。
-struct SampleFrame {
+// 将AVFrame进行可能的格式转换后，并从plannar转换成packed形式后的frame。 一个decodedFrame包含若干个sample
+struct DecodedFrame {
     // 存储数据
     uint8_t *data;
     
-    // 帧数目
+    // 已经被读取的sample帧数目
+    int readCnt = 0;
+    
+    // 总共的sample帧数目
     int frameCnt = 0;
 };
 
@@ -53,20 +56,9 @@ private:
     // 输入文件的路径
     const char *inputFilePath;
     
-    // 输出音频文件的保存路径
-    const char *outputAudioFilePath;
+    // 存储decodedFrame的队列
+    std::queue<DecodedFrame> audioQueue;
     
-    // 输出视频文件的保存路径
-    const char *outputVideoFilePath;
-    
-    // 指向采样帧队列的指针
-    std::queue<SampleFrame> *audioQueue;
-    
-    // 输出音频文件的句柄
-    FILE *audioOutput;
-    
-    // 输出视频文件的句柄
-    FILE *videoOutput;
     
     // 视频帧的高度
     int height;
@@ -87,19 +79,19 @@ private:
     AVPixelFormat pix_fmt;
     
     // 存储流信息的上下文
-    AVFormatContext *fmtCtx;
+    AVFormatContext *fmtCtx = nullptr;
     
     // 存储音频编解码信息的上下文
-    AVCodecContext *audioCodecCtx;
+    AVCodecContext *audioCodecCtx = nullptr;
     
     // 存储视频编解码信息的上下文
-    AVCodecContext *videoCodecCtx;
+    AVCodecContext *videoCodecCtx = nullptr;
     
     // 数据包
-    AVPacket *packet;
+    AVPacket *packet = nullptr;
     
     // 数据帧
-    AVFrame *frame;
+    AVFrame *frame = nullptr;
     
     // 音频流的索引
     int audioIndex = -1;
@@ -116,8 +108,6 @@ private:
     // 输出音频帧
     int out_audio_frame(AVFrame *);
     
-    /// 初始化函数
-    void init();
     
     // 对数据包进行解析
     int decodePacket(AVCodecContext *, AVPacket *);
@@ -127,7 +117,7 @@ private:
     int resample(AVCodecContext *, AVFrame *);
     
     // 重采样上下文
-    SwrContext *swrContext;
+    SwrContext *swrContext = nullptr;
     
     // 目标采样率
     int out_sample_rate;
@@ -147,7 +137,7 @@ private:
     /**视频格式转换相关参数**/
     
     // 图像格式转换上下文
-    SwsContext *swsContext;
+    SwsContext *swsContext = nullptr;
     
     // 目标高度
     int dst_height;
@@ -176,10 +166,18 @@ private:
     
 public:
     ~AVDecoder();
-    AVDecoder(const char *, const char *, const char *);
-    AVDecoder(const char *,std::queue<SampleFrame>*);
+    AVDecoder(const char *);
+    
+    /// 解码数据，并将数据以decodedFrame的形式存储。
     int decode();
+    
+    /// 从decodedFrame队列中读取指定数目的样本，返回给audioUnit渲染
+    int assembleRenderData(uint8_t *, int);
+    
     void destroy();
+    
+    // 是否正在解码数据
+    bool isDecoding = false;
     
 };
 #endif /* AVDecoder_hpp */

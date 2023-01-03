@@ -9,37 +9,13 @@
 #include "avformat.h"
 using namespace std;
 
-AVDecoder::AVDecoder(const char *inputFilePath, const char *outputAudioFilePath, const char *outputVideoFilePath){
-    this->inputFilePath = inputFilePath;
-    this->outputAudioFilePath = outputAudioFilePath;
-    this->outputVideoFilePath = outputVideoFilePath;
-    
-    init();
-    
-    audioOutput = fopen(outputAudioFilePath, "wb+");
-    videoOutput = fopen(outputVideoFilePath, "wb+");
-    cout<<"AVDecoder initialize with src_filepath and dst_paths"<<endl;
-}
 
-AVDecoder::AVDecoder(const char *src_path, std::queue<SampleFrame>*audioqueue) {
-    this->inputFilePath = src_path;
-    this->audioQueue = audioqueue;
-    init();
-    cout<<"AVDecoder initialize with src_filepath"<<endl;
-}
 
-void AVDecoder::init(){
+AVDecoder::AVDecoder(const char *src_path) {
     avformat_network_init();
     
-    // 解码相关变量
-    frame = nullptr;
-    packet = nullptr;
-    fmtCtx = nullptr;
-    audioCodecCtx = nullptr;
-    videoCodecCtx = nullptr;
     
     // 音频重采样参数
-    swrContext = nullptr;
     out_ch_layout = av_get_default_channel_layout(OUT_CHANNELS);
     out_sample_rate = OUT_SAMPLE_RATE;
     out_sample_fmt = OUT_SAMPLE_FMT;
@@ -47,10 +23,11 @@ void AVDecoder::init(){
     outdata = nullptr;
     
     // 图像格式转换参数
-    swsContext = nullptr;
     dst_width = DST_WIDTH;
     dst_height = DST_HEIGHT;
     dst_pix_fmt = DST_PIX_FMT;
+    
+    this->inputFilePath = src_path;
     
 }
 
@@ -157,9 +134,13 @@ int AVDecoder::decode(){
         cout<<"pixel_fmt:"<<av_get_pix_fmt_name(pix_fmt)<<endl;
     }
     
-    // 读取音视频帧
-    packet = av_packet_alloc();
-    frame = av_frame_alloc();
+    // 创建packet和frame
+    if (!packet) {
+        packet = av_packet_alloc();
+    }
+    if (!frame) {
+        frame = av_frame_alloc();
+    }
 
     // 循环从流中读取数据包
     while(av_read_frame(fmtCtx, packet) >= 0){
@@ -240,31 +221,21 @@ int AVDecoder::out_audio_frame(AVFrame *frame){
     }
     // AVFrame采用的是LLLLRRRRR的planar格式，左右声道数据分开排列。
     // pcm采用的是packed格式，即LRLRLR形，左右声道数据交叉排列。
+    DecodedFrame decodedFrame;
+    decodedFrame.data = new uint8_t[nb_samples * OUT_CHANNELS * numBytes];
+    decodedFrame.frameCnt = nb_samples;
+    
     for (int i = 0; i < nb_samples; ++i) {
-        SampleFrame *sampleFrame;
-        bool isNewFrame = false;
-        if (!this->audioQueue->empty() && this->audioQueue->back().frameCnt < 1024) {
-            sampleFrame = &this->audioQueue->back();
-        } else {
-            isNewFrame = true;
-            sampleFrame = new SampleFrame();
-            sampleFrame->data = (uint8_t *) new uint8_t[numBytes * 2 * 1024];
-        }
         for (int channel = 0; channel < OUT_CHANNELS; ++channel) {
             if(needResample(audioCodecCtx)) {
-                memcpy(sampleFrame->data + sampleFrame->frameCnt * numBytes * 2 + channel * numBytes, outdata[channel] + numBytes * i, numBytes);
+                memcpy(decodedFrame.data + i * numBytes * OUT_CHANNELS + channel * numBytes, outdata[channel] + numBytes * i, numBytes);
             } else {
-                memcpy(sampleFrame->data + sampleFrame->frameCnt * numBytes * 2 + channel * numBytes, frame->data[channel] + numBytes * i, numBytes);
+                memcpy(decodedFrame.data + i * numBytes * OUT_CHANNELS + channel * numBytes, frame->data[channel] + numBytes * i, numBytes);
             }
         }
-        sampleFrame->frameCnt += 1;
-        if (isNewFrame) {
-            this->audioQueue->push(*sampleFrame);
-            
-            // push 到队列，实际上是会将sampleFrame所指向的结构体的内容复制一份，然后加入到队列中。所以本地的结构体需要释放掉
-            delete sampleFrame;
-        }
     }
+    
+    this->audioQueue.push(decodedFrame);
     return 0;
 }
 
@@ -287,6 +258,62 @@ int AVDecoder::out_video_frame(AVFrame *frame){
 //        fwrite(video_dst_data[0], 1, video_dst_bufsize, videoOutput);
     }
     return 0;
+}
+
+int AVDecoder::assembleRenderData(uint8_t *buffer, int numFrames) {
+    // 采样深度
+    int numBytes = av_get_bytes_per_sample(out_sample_fmt);
+    
+    if (this->audioQueue.empty()) {
+        buffer = 0;
+        return 0;
+    }
+    
+    // 已读的样本帧数目（样本帧，一个样本就是一帧）
+    int readFrames = 0;
+    while(numFrames > 0) {
+        
+        if(this->audioQueue.empty()) {
+            break;
+        }
+        DecodedFrame &decodedFrame = this->audioQueue.front();
+        
+        // decodedFrame剩余的未被读取过的帧数目
+        int frameLeftCnt = decodedFrame.frameCnt - decodedFrame.readCnt;
+        
+        // 如果整个decodedFrame都被读取
+        if(frameLeftCnt < numFrames) {
+            memcpy(buffer + readFrames * OUT_CHANNELS * numBytes, decodedFrame.data + decodedFrame.readCnt * OUT_CHANNELS * numBytes, frameLeftCnt * OUT_CHANNELS * numBytes);
+            
+            // 更新需要的数据量
+            numFrames  = numFrames - frameLeftCnt;
+            
+            // 更新已读的数据量
+            readFrames = readFrames + frameLeftCnt;
+            
+            // 更新这个decodedFrame的已读数据量
+            decodedFrame.readCnt = decodedFrame.frameCnt;
+            
+            
+        } else {  // 如果只读取一部分
+            memcpy(buffer + readFrames * OUT_CHANNELS * numBytes, decodedFrame.data + decodedFrame.readCnt * OUT_CHANNELS * numBytes , numFrames * OUT_CHANNELS * numBytes);
+            
+            readFrames =  readFrames + numFrames;
+            
+            decodedFrame.readCnt = decodedFrame.readCnt + numFrames;
+            
+            numFrames = 0;
+        }
+        
+        // 因为整个decodedFrame都已经被读过，所以将decodedFrame.data释放（分配在堆上，要手动释放);同时出队列
+        if (decodedFrame.frameCnt == decodedFrame.readCnt) {
+            this->audioQueue.pop();
+            delete []decodedFrame.data;
+        }
+    }
+    
+    // 返回总共读取的字节数
+    return readFrames * numBytes * OUT_CHANNELS;
 }
 
 int AVDecoder::createCodecCtx(AVStream *stream){
@@ -407,10 +434,6 @@ void AVDecoder::destroy(){
     if (swsContext) {
         sws_freeContext(swsContext);
     }
-    
-    // 关闭文件
-//    if (audioOutput) fclose(audioOutput);
-//    if (videoOutput) fclose(videoOutput);
     
     // 释放缓冲区
     if (outdata) {

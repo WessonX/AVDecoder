@@ -8,11 +8,19 @@
 #import "ViewController.h"
 #import "CommonUtil.h"
 #import "AudioPlayer.h"
+#import <Masonry/Masonry.h>
 #include "AVDecoder.hpp"
 
 @interface ViewController ()
 
 @property(nonatomic, strong)AudioPlayer *player;
+@property(nonatomic, strong)UIButton    *playBtn;
+
+-(void)play;
+
+-(void)stop;
+
+-(void)playDidEnd;
 @end
 
 
@@ -22,28 +30,54 @@
     NSLog(@"view did load");
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    self.view.backgroundColor = [UIColor greenColor];
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+//    self.playBtn = [[UIButton alloc]initWithFrame:CGRectMake(50, 50, 100, 100)];
+    [self.view layoutIfNeeded];
+    self.playBtn = [[UIButton alloc]init];
+    self.playBtn.backgroundColor = [UIColor greenColor];
+    [self.playBtn setTitle:@"播放" forState:UIControlStateNormal];
+    [self.playBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.playBtn addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.playBtn];
+    
+    [self.playBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.height.equalTo(@(50));
+        make.center.equalTo(self.view);
+        
+    }];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(playDidEnd) name:@"endPlayNotification" object:nil];
 
-    const char *inputFilePath = [[CommonUtil bundlePath:@"big_buck_bunny.mp4"] cStringUsingEncoding:NSUTF8StringEncoding];
+    NSString *filePath =  [CommonUtil bundlePath:@"131.aac"];
     
-    const char *outputAudioFilePath = [[CommonUtil documentPath:@"132.pcm"] cStringUsingEncoding:NSUTF8StringEncoding];
-    
-    const char *outputVideoFilePath = [[CommonUtil documentPath:@"132.h264"] cStringUsingEncoding:NSUTF8StringEncoding];
-    
-    dispatch_queue_t queue = dispatch_queue_create("myqueue",DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(queue, ^{
-//        AVDecoder *decoder = new AVDecoder("https://media.w3.org/2010/05/sintel/trailer.mp4",outputAudioFilePath,outputVideoFilePath);
-//        int ret = decoder->decode();
-//        if (ret == 0) {
-//            cout<<"解码成功！"<<endl;
-//        } else {
-//            cout<<"解码失败！"<<endl;
-//        }
-//        delete decoder;
-        self.player = [[AudioPlayer alloc]initWithFilePath:@"https://media.w3.org/2010/05/sintel/trailer.mp4"];
-    });
+    self.player = [[AudioPlayer alloc]initWithFilePath:@"https://media.w3.org/2010/05/sintel/trailer.mp4"];
+//    self.player = [[AudioPlayer alloc] initWithFilePath:filePath];
+}
 
+- (void)play {
+    if (self.player) {
+        if ([self.player isPlaying]) {
+            [self.player stop];
+            [self.playBtn setTitle:@"播放" forState:UIControlStateNormal];
+            NSLog(@"点击了暂停按钮");
+        } else {
+            [self.player start];
+            [self.playBtn setTitle:@"暂停" forState:UIControlStateNormal];
+            NSLog(@"点击了播放按钮");
+            
+        }
+    }
 }
 
 
+- (void)playDidEnd {
+    //回到主线程上更新UI
+    [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+        [self.playBtn setTitle:@"播放" forState:UIControlStateNormal];
+    }];
+}
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
 @end

@@ -19,9 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFilePath:(NSString *)filePath;
 
-- (BOOL)play;
+- (void)start;
 
 - (void)stop;
+
+- (bool)isPlaying;
 
 - (void)destroyPlayer;
 @end

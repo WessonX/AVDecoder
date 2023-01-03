@@ -24,38 +24,47 @@ static OSStatus InputRenderCallback(void *inRefCon,
                                     UInt32 inNumberFrames,
                                     AudioBufferList *ioData);
 
-@interface AudioPlayer ()
+@protocol fillDataDelegate <NSObject>
+
+- (int)fillDataWithBuffer:(uint8_t *)buffer numFrames:(int)numFrames numChannels:(int) channels;
+
+@end
+
+@interface AudioPlayer ()<fillDataDelegate>
 
 @property(nonatomic, strong) AVAudioSession     *audioSession;
 @property(nonatomic, assign) AUGraph            graph;
 @property(nonatomic, assign) AUNode             ioNode;
 @property(nonatomic, assign) AudioUnit          ioUnit;
-
+@property(nonatomic, weak) id<fillDataDelegate> fillDataDelegate;
+@property(nonatomic, copy)   NSString           *filePath;
+@property(nonatomic, assign) BOOL               didPullStream;     //判断是否拉取到了数据.默认为0
 @end
 @implementation AudioPlayer
 {
-//    AVDecoder *_avDecoder;
-    std::queue<SampleFrame>_audioQueue;
+    AVDecoder *_avDecoder;
+    dispatch_queue_t _queue;
 }
 
 - (instancetype)initWithFilePath:(NSString *)filePath {
     self = [super init];
     if (self) {
         // 进行解码
-        dispatch_queue_t queue = dispatch_queue_create("decodeQueue", DISPATCH_QUEUE_CONCURRENT);
+        _queue = dispatch_queue_create("decodeQueue", DISPATCH_QUEUE_CONCURRENT);
+        _avDecoder = new AVDecoder([filePath UTF8String]);
         __weak typeof(self) weakSelf = self;
-        dispatch_async(queue, ^{
+        dispatch_async(_queue, ^{
             // 初始化解码器
             __strong typeof(self) strongSelf = weakSelf;
-            AVDecoder *_avDecoder = new AVDecoder([filePath UTF8String],&strongSelf->_audioQueue);
-            int ret = _avDecoder->decode();
+            int ret = strongSelf->_avDecoder->decode();
             if (ret < 0) {
                 NSLog(@"解码失败");
             } else {
                 NSLog(@"解码成功");
             }
-            delete _avDecoder;
         });
+        self.filePath = filePath;
+        _fillDataDelegate = self;
         // 设置默认参数
         self.graphSampleRate = sample_rate;
         self.ioBufferDuration = ioBufferDuration;
@@ -137,45 +146,79 @@ static OSStatus InputRenderCallback(void *inRefCon,
     [self printASBD:asbd];
     // 开启graph
     
-    status = AUGraphStart(_graph);
-    CheckStatus(status, @"fail to start the graph", YES);
-    
-    
 }
 
-- (BOOL)play {
-    return YES;
+- (void)start {
+    // 如果解码器已经释放掉，则重新开始解码
+    if (!_avDecoder) {
+        _avDecoder = new AVDecoder([self.filePath UTF8String]);
+        __weak typeof(self) weakSelf = self;
+        dispatch_async(_queue, ^{
+            __strong typeof(self) strongSelf = weakSelf;
+            int ret = strongSelf->_avDecoder->decode();
+            if (ret < 0) {
+                NSLog(@"解码失败");
+            } else {
+                NSLog(@"解码成功");
+            }
+        });
+    }
+    int status = AUGraphStart(_graph);
+    CheckStatus(status, @"fail to start the graph", YES);
+    NSLog(@"开始播放……");
+
 }
 
 - (void)stop{
-    
+    int status = AUGraphStop(_graph);
+    CheckStatus(status, @"fail to stop the graph", YES);
+    NSLog(@"已暂停……");
 }
-
+- (bool)isPlaying {
+    Boolean isRunning = false;
+    int status = AUGraphIsRunning(_graph, &isRunning);
+    CheckStatus(status, @"fail to stop the graph", YES);
+    return isRunning;
+}
 - (OSStatus)renderData:(AudioBufferList *)ioData
            atTimeStamp:(const AudioTimeStamp *)timeStamp
             forElement:(UInt32)element
           numberFrames:(UInt32)numFrames
                  flags:(AudioUnitRenderActionFlags *)flags {
 
-    for (int i = 0; i < ioData->mNumberBuffers; ++i) {
-        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
-        if (!_audioQueue.empty()) {
-            // 注意，queue.front（），返回的“Reference”并不是指针意义上的引用,而是一个拷贝。所以这里的frame要加&，转换为真正的引用
-            SampleFrame &frame = _audioQueue.front();
-            
-            // 将frame中的数据拷贝到ioData中
-            memcpy(ioData->mBuffers[i].mData, frame.data, frame.frameCnt * 4);
-            
-            // 将frame的数据清除掉
-            delete frame.data;
-            
-            // 将frame从队列移除
-            _audioQueue.pop();
-            
-        }
-        
+    uint8_t *tempData = new uint8_t[ioData->mBuffers[0].mDataByteSize];
+    memset(tempData, 0, ioData->mBuffers[0].mDataByteSize);
+    
+    int ret = 0;
+    if (self.fillDataDelegate) {
+        ret = [self.fillDataDelegate fillDataWithBuffer:tempData numFrames:numFrames numChannels:2];
     }
     
+    for (int i = 0; i < ioData->mNumberBuffers; ++i) {
+        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
+        memcpy(ioData->mBuffers[i].mData, tempData, ret);
+    }
+    delete []tempData;
+    if (ret > 0) {
+        self.didPullStream = YES;
+        NSLog(@"开始拉流");
+        
+    }
+    // 拉取到的数据为0，且之前已经拉取到了数据，说明播放已经完毕.应该释放掉decoder，同时暂停graph，停止拉流
+    // 如果只是单纯的拉取到的数据为0，可能两种情况
+    // 1. decoder还没开始解码，所以拉取不到
+    // 2. 播放已经完毕
+    if (ret == 0 && self.didPullStream) {
+        delete _avDecoder;
+        _avDecoder = nullptr;
+        AUGraphStop(_graph);
+        self.didPullStream = NO;
+        NSLog(@"播放结束");
+        
+        // 发送播放结束的通知
+        NSNotification *endPlayNotification = [NSNotification notificationWithName:@"endPlayNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] postNotification:endPlayNotification];
+    }
     return noErr;
 }
 
@@ -187,6 +230,11 @@ static OSStatus InputRenderCallback(void *inRefCon,
                                     AudioBufferList *ioData) {
     AudioPlayer *player = (__bridge id)inRefCon;
     return [player renderData:ioData atTimeStamp:inTimeStamp forElement:inBusNumber numberFrames:inNumberFrames flags:ioActionFlags];
+}
+
+- (int)fillDataWithBuffer:(uint8_t *)buffer numFrames:(int)numFrames numChannels:(int)channels {
+    int ret = _avDecoder->assembleRenderData(buffer, numFrames);
+    return ret;
 }
 
 - (void) printASBD: (AudioStreamBasicDescription) asbd {
@@ -219,6 +267,7 @@ static OSStatus InputRenderCallback(void *inRefCon,
     _graph  = NULL;
     _ioNode = NULL;
     _ioUnit = NULL;
+    delete _avDecoder;
 }
 
 @end
