@@ -9,7 +9,19 @@
 #include "avformat.h"
 using namespace std;
 
-
+void getTimeStamp() {
+    auto now = std::chrono::system_clock::now();
+    //通过不同精度获取相差的毫秒数
+    uint64_t dis_millseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count()
+        - std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() * 1000;
+    time_t tt = std::chrono::system_clock::to_time_t(now);
+    auto time_tm = localtime(&tt);
+    char strTime[25] = { 0 };
+    sprintf(strTime, "[]%d-%02d-%02d %02d:%02d:%02d %03d", time_tm->tm_year + 1900,
+        time_tm->tm_mon + 1, time_tm->tm_mday, time_tm->tm_hour,
+        time_tm->tm_min, time_tm->tm_sec, (int)dis_millseconds);
+    std::cout << strTime << std::endl;
+}
 
 AVDecoder::AVDecoder(const char *src_path) {
     avformat_network_init();
@@ -32,12 +44,17 @@ AVDecoder::AVDecoder(const char *src_path) {
 }
 
 int AVDecoder::decode(){
+    cout<<"开始解码"<<endl;
+    getTimeStamp();
+   
     int ret = 0;
     // 构造avformatContext
     fmtCtx = avformat_alloc_context();
     
-    // 打开文件，获取流
+    // 打开文件，获取流     todo:耗时大头，需要优化
+    getTimeStamp();
     ret = avformat_open_input(&fmtCtx, inputFilePath, NULL, NULL);
+    getTimeStamp();
     if (ret == 0) {
         cout<<"open file succeed！"<<endl;
     } else {
@@ -46,8 +63,10 @@ int AVDecoder::decode(){
         return ret;
     }
     
-    // 获取流信息
+    // 获取流信息          todo:耗时大头，需要优化
+    getTimeStamp();
     ret = avformat_find_stream_info(fmtCtx, NULL);
+    getTimeStamp();
     if (ret >= 0){
         cout<<"successed to get stream info！"<<endl;
     } else {
@@ -164,6 +183,9 @@ int AVDecoder::decode(){
         decodePacket(audioCodecCtx, NULL);
         
     }
+    
+    cout<<"解码完毕"<<endl;
+    getTimeStamp();
     return ret;
 }
 int AVDecoder::decodePacket(AVCodecContext *codecContext, AVPacket *packet) {
