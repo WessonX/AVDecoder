@@ -18,7 +18,6 @@
 
 -(void)play;
 
--(void)stop;
 
 -(void)playDidEnd;
 @end

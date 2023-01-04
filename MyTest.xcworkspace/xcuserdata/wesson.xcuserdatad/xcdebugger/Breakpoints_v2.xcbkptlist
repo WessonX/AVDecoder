@@ -14,8 +14,8 @@
             filePath = "MyTest/ViewController.mm"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "59"
-            endingLineNumber = "59"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
             landmarkName = "-play"
             landmarkType = "7">
          </BreakpointContent>

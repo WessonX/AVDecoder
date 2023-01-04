@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <queue>
+#include "ConcurrentQueue.h"
 
 
 // 目标音频的参数
@@ -57,7 +58,8 @@ private:
     const char *inputFilePath;
     
     // 存储decodedFrame的队列
-    std::queue<DecodedFrame> audioQueue;
+//    std::queue<DecodedFrame> audioQueue;
+    ConcurrenceQueue<DecodedFrame> audioQueue;
     
     
     // 视频帧的高度

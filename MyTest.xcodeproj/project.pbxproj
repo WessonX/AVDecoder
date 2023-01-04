@@ -74,6 +74,7 @@
 		2D4B5299296076AA004A4014 /* AudioPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioPlayer.h; sourceTree = "<group>"; };
 		2D4B529A296076AA004A4014 /* AudioPlayer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioPlayer.mm; sourceTree = "<group>"; };
 		2D4E769829629C1F00BA76A8 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		2D59CE832965734900906A56 /* ConcurrentQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConcurrentQueue.h; sourceTree = "<group>"; };
 		2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = 16k16bit.pcm; sourceTree = "<group>"; };
 		2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_buck_bunny.mp4; sourceTree = "<group>"; };
 		2DD0D0D6295C83120034C2EE /* test.flv */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.flv; sourceTree = "<group>"; };
@@ -559,6 +560,7 @@
 			children = (
 				2DFECBF32958AAB6002808A6 /* AVDecoder.cpp */,
 				2DFECBF42958AAB6002808A6 /* AVDecoder.hpp */,
+				2D59CE832965734900906A56 /* ConcurrentQueue.h */,
 			);
 			path = AVDecoder;
 			sourceTree = "<group>";
@@ -573,7 +575,6 @@
 				8AE3E9205A5D98A4A957908D /* Pods-MyTestTests.debug.xcconfig */,
 				D14173ECF86BD210D296AFFF /* Pods-MyTestTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
