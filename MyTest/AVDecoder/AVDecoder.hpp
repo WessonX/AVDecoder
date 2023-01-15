@@ -38,7 +38,9 @@ extern "C" {
     #include "libswscale/swscale.h"
     #include "libswresample/swresample.h"
 };
-
+/**
+    用于音频
+ */
 // 将AVFrame进行可能的格式转换后，并从plannar转换成packed形式后的frame。 一个decodedFrame包含若干个sample
 struct DecodedFrame {
     // 存储数据
@@ -51,6 +53,19 @@ struct DecodedFrame {
     int frameCnt = 0;
 };
 
+/**
+    用于视频
+ */
+struct VideoFrame {
+    // yuv数据
+    uint8_t *data;
+    
+    // 视频的宽
+    int width;
+    
+    // 视频的高
+    int height;
+};
 
 class AVDecoder{
 private:
@@ -60,6 +75,9 @@ private:
     // 存储decodedFrame的队列
 //    std::queue<DecodedFrame> audioQueue;
     ConcurrenceQueue<DecodedFrame> audioQueue;
+    
+//    // 存储VideoFrame的队列
+//    ConcurrenceQueue<VideoFrame> videoQueue;
     
     
     // 视频帧的高度
@@ -180,6 +198,13 @@ public:
     
     // 是否正在解码数据
     bool isDecoding = false;
+    
+    // 存储VideoFrame的队列
+    ConcurrenceQueue<VideoFrame> videoQueue;
+    
+    const char *outputPath;
+    
+    FILE *output;
     
 };
 #endif /* AVDecoder_hpp */

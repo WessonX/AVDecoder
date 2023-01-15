@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E708988D-54C3-49B6-913F-5142D5C61A1A"
+            uuid = "329F39D9-7BE2-47AB-BCF8-6CD9DB1A6D19"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MyTest/ViewController.mm"
+            filePath = "MyTest/AVDecoder/AVDecoder.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "58"
-            endingLineNumber = "58"
-            landmarkName = "-play"
+            startingLineNumber = "290"
+            endingLineNumber = "290"
+            landmarkName = "AVDecoder::out_video_frame(frame)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

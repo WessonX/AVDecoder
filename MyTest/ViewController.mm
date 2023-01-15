@@ -10,11 +10,15 @@
 #import "AudioPlayer.h"
 #import <Masonry/Masonry.h>
 #include "AVDecoder.hpp"
+#import "OpenGLView20.h"
+#include "avformat.h"
+#include "OpenGLView.h"
 
 @interface ViewController ()
 
 @property(nonatomic, strong)AudioPlayer *player;
 @property(nonatomic, strong)UIButton    *playBtn;
+@property(nonatomic, strong)OpenGLView *openglView;
 
 -(void)play;
 
@@ -24,6 +28,9 @@
 
 
 @implementation ViewController
+{
+    AVDecoder *decoder;
+}
 
 - (void)viewDidLoad {
     NSLog(@"view did load");
@@ -48,12 +55,31 @@
     
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(playDidEnd) name:@"endPlayNotification" object:nil];
 
-    NSString *filePath =  [CommonUtil bundlePath:@"131.aac"];
+    NSString *filePath =  [CommonUtil bundlePath:@"big_buck_bunny.mp4"];
     
-    self.player = [[AudioPlayer alloc]initWithFilePath:@"https://media.w3.org/2010/05/sintel/trailer.mp4"];
+//    self.player = [[AudioPlayer alloc]initWithFilePath:@"https://media.w3.org/2010/05/sintel/trailer.mp4"];
 //    self.player = [[AudioPlayer alloc] initWithFilePath:filePath];
+    
+    self.openglView = [[OpenGLView alloc]initWithFrame:CGRectMake(20, 20, 854, 480)];
+    [self.view addSubview:_openglView];
+    decoder = new AVDecoder([filePath UTF8String]);
+//    decoder->outputPath = [filePath UTF8String];
+    decoder->decode();
+//    OpenGLView *myview =  [[OpenGLView alloc]initWithFrame:[UIScreen mainScreen].bounds];
+//    [self.view addSubview:myview];
+    
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+     //需要在viewDidAppear，将view添加进view体系中，才能使用openGL进行渲染。
+        while(!decoder->videoQueue.empty()) {
+            VideoFrame &frame = decoder->videoQueue.front();
+            [_openglView displayYUV420pData:frame.data width:frame.width height:frame.height];
+            decoder->videoQueue.pop();
+            delete []frame.data;
+        }
+    
+}
 - (void)play {
     if (self.player) {
         if ([self.player isPlaying]) {

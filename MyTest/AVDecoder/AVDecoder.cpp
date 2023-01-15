@@ -44,6 +44,7 @@ AVDecoder::AVDecoder(const char *src_path) {
 }
 
 int AVDecoder::decode(){
+    output = fopen(outputPath, "wb+");
     cout<<"开始解码"<<endl;
     getTimeStamp();
    
@@ -266,6 +267,10 @@ int AVDecoder::out_video_frame(AVFrame *frame){
     // video_dst_data 经过av_image_copy 之后，将可能存在的填充数据都去除掉了，video_dst_data[0] 存储y分量， video_dst_data[1]存储u分量，video_dst_data[2]存储v分量。
     av_image_copy(video_dst_data, video_dst_linesize, (const uint8_t **)(frame->data), frame->linesize, pix_fmt, width, height);
     
+    VideoFrame videoFrame;
+    videoFrame.width  = frame->width;
+    videoFrame.height = frame->height;
+    
     // 判断图像格式是否需要转换
     if (needScale(videoCodecCtx)) {
         int ret = rescale(video_dst_data);
@@ -273,12 +278,19 @@ int AVDecoder::out_video_frame(AVFrame *frame){
             cout<<"fail to scale"<<endl;
             return ret;
         }
-//        fwrite(scaled_data[0], 1, scaled_buffer_size, videoOutput);
+        
+        // 将数据拷贝到videoFrame
+        videoFrame.data = new uint8_t[scaled_buffer_size];
+        memcpy(videoFrame.data, scaled_data[0], scaled_buffer_size);
+//        fwrite(scaled_data[0], 1, scaled_buffer_size, output);
     } else {
         
         //下面直接read了整个frame大小的数据，是因为，yuv分量的三个数组是连续存储的，从video_dst_data[0]的起始地址开始，读video_dst_bufsize，实际就把整个帧都读完了，就不需要再分别的读data[0],data[1],data[2].
-//        fwrite(video_dst_data[0], 1, video_dst_bufsize, videoOutput);
+//        fwrite(video_dst_data[0], 1, video_dst_bufsize, output);
+        videoFrame.data = new uint8_t[video_dst_bufsize];
+        memcpy(videoFrame.data, video_dst_data[0], video_dst_bufsize);
     }
+    this->videoQueue.push(videoFrame);
     return 0;
 }
 
@@ -475,6 +487,10 @@ void AVDecoder::destroy(){
     if (scaled_data[0]){
         av_free(scaled_data[0]);
     }
+    
+    if (output) {
+        fclose(output);
+    }
 }
 
 bool AVDecoder::needResample(AVCodecContext *codecContext) {
@@ -492,7 +508,7 @@ bool AVDecoder::needScale(AVCodecContext *codecContext) {
     if (width == dst_width && height == dst_height && pix_fmt == dst_pix_fmt) {
         return false;
     }
-    return true ;
+    return false ;  //for test
 }
 
 int AVDecoder::rescale(uint8_t *buffer[]) {

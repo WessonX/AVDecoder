@@ -10,7 +10,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OpenGLView : UIView
-
+- (void)displayYUV420pData:(void *)data width:(int)w height:(int)h;
 @end
 
 NS_ASSUME_NONNULL_END
