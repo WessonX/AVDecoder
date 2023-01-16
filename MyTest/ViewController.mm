@@ -18,7 +18,7 @@
 
 @property(nonatomic, strong)AudioPlayer *player;
 @property(nonatomic, strong)UIButton    *playBtn;
-@property(nonatomic, strong)OpenGLView *openglView;
+@property(nonatomic, strong)OpenGLView  *openglView;
 
 -(void)play;
 
@@ -30,6 +30,7 @@
 @implementation ViewController
 {
     AVDecoder *decoder;
+    dispatch_queue_t myQueue;
 }
 
 - (void)viewDidLoad {
@@ -64,20 +65,27 @@
     [self.view addSubview:_openglView];
     decoder = new AVDecoder([filePath UTF8String]);
 //    decoder->outputPath = [filePath UTF8String];
-    decoder->decode();
-//    OpenGLView *myview =  [[OpenGLView alloc]initWithFrame:[UIScreen mainScreen].bounds];
-//    [self.view addSubview:myview];
+    myQueue = dispatch_queue_create("queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(myQueue, ^{
+        self->decoder->decode();
+    });
     
 }
 
 - (void)viewDidAppear:(BOOL)animated {
      //需要在viewDidAppear，将view添加进view体系中，才能使用openGL进行渲染。
-        while(!decoder->videoQueue.empty()) {
-            VideoFrame &frame = decoder->videoQueue.front();
-            [_openglView displayYUV420pData:frame.data width:frame.width height:frame.height];
-            decoder->videoQueue.pop();
-            delete []frame.data;
+    dispatch_async(myQueue, ^{
+        // 只要decoder还在解码，或者帧队列还没空，就不断尝试从queue中获取数据
+        while(self->decoder->isDecoding || !self->decoder->videoQueue.empty()) {
+            if (!self->decoder->videoQueue.empty()) {
+                VideoFrame &frame = self->decoder->videoQueue.front();
+                
+                [self->_openglView displayYUV420pData:frame.data width:frame.width height:frame.height];
+                self->decoder->videoQueue.pop();
+                delete []frame.data;
+            }
         }
+    });
     
 }
 - (void)play {

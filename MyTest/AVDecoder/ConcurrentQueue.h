@@ -13,6 +13,7 @@
 #include <queue>
 #include <memory>
 
+#define QUEUE_CAPACITY 100
 template<typename DATATYPE, typename SEQUENCE = std::deque<DATATYPE>>
 class ConcurrenceQueue {
 public:
@@ -35,15 +36,22 @@ public:
     }
     
     void push(const DATATYPE & data) {
-        std::lock_guard<std::mutex> lg(m_mutex);
+        std::unique_lock<std::mutex> lg(m_mutex);
+        while (m_data.size() >= QUEUE_CAPACITY) {
+            m_notFull.wait(lg);
+        }
+//        m_cond.wait(lg, [this] {return m_data.size() < QUEUE_CAPACITY;});
         m_data.push(data);
-        m_cond.notify_one();
+        m_notEmpty.notify_one();
     }
     
     void push(DATATYPE && data) {
-        std::lock_guard<std::mutex> lg(m_mutex);
+        std::unique_lock<std::mutex> lg(m_mutex);
+        while (m_data.size() >= QUEUE_CAPACITY) {
+            m_notFull.wait(lg);
+        }
         m_data.push(std::move(data));
-        m_cond.notify_one();
+        m_notEmpty.notify_one();
     }
 
     reference front(){
@@ -65,14 +73,15 @@ public:
     
     void pop() {  // 非阻塞
         std::unique_lock<std::mutex> lg(m_mutex);
-        m_cond.wait(lg, [this] { return !m_data.empty(); });
+        m_notEmpty.wait(lg, [this] { return !m_data.empty(); });
         m_data.pop();
-        return;
+        m_notFull.notify_one();
     }
     
 private:
     std::queue<DATATYPE, SEQUENCE> m_data;
     mutable std::mutex m_mutex;
-    std::condition_variable m_cond;
+    std::condition_variable m_notFull;
+    std::condition_variable m_notEmpty;
 };
 #endif

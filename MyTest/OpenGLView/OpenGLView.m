@@ -131,7 +131,8 @@ NSString *const fragmentShaderString = SHADER_STRING(
     return self;
 }
 - (void)layoutSubviews {
-    
+    int width  = self.bounds.size.width;
+    int height = self.bounds.size.height;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         @synchronized (self) {
             // 1. 设置上下文
@@ -147,7 +148,7 @@ NSString *const fragmentShaderString = SHADER_STRING(
             [self setupFrameBuffer];
         }
         CGFloat scale = [UIScreen mainScreen].scale;
-        glViewport(0, 0, self.bounds.size.width * scale, self.bounds.size.height * scale);
+        glViewport(0, 0, width * scale, height * scale);
     });
 }
 
@@ -246,7 +247,9 @@ NSString *const fragmentShaderString = SHADER_STRING(
     
     // 3. 设置窗口的大小
     CGFloat scale = [UIScreen mainScreen].scale;
-    glViewport(0, 0, self.bounds.size.width * scale, self.bounds.size.height * scale);
+    int width  = self.bounds.size.width;
+    int height = self.bounds.size.height;
+    glViewport(0, 0, width * scale,height * scale);
     
     // 4. 矩形窗口的顶点坐标
     GLfloat vertices[] = {

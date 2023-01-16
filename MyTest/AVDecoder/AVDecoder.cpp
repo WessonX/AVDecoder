@@ -46,6 +46,7 @@ AVDecoder::AVDecoder(const char *src_path) {
 int AVDecoder::decode(){
     output = fopen(outputPath, "wb+");
     cout<<"开始解码"<<endl;
+    this->isDecoding = true;
     getTimeStamp();
    
     int ret = 0;
@@ -187,6 +188,7 @@ int AVDecoder::decode(){
     
     cout<<"解码完毕"<<endl;
     getTimeStamp();
+    this->isDecoding = false;
     return ret;
 }
 int AVDecoder::decodePacket(AVCodecContext *codecContext, AVPacket *packet) {
@@ -215,7 +217,7 @@ int AVDecoder::decodePacket(AVCodecContext *codecContext, AVPacket *packet) {
         if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
             ret = out_video_frame(frame);
         } else {
-            ret = out_audio_frame(frame);
+//            ret = out_audio_frame(frame);
         }
         
         // frame用完要及时减少引用计数
