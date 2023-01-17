@@ -9,6 +9,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol fillAudioDataDelegate <NSObject>
+
+- (int)fillAudioDataWithBuffer:(uint8_t *)buffer numFrames:(int)numFrames numChannels:(int) channels;
+
+@end
+
 @interface AudioPlayer : NSObject
 
 /// 采样率
@@ -17,9 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// ioBuffer的处理时长
 @property (nonatomic,assign) double ioBufferDuration;
 
-- (instancetype)initWithFilePath:(NSString *)filePath;
+/// 拉取音频数据的代理
+@property(nonatomic, weak) id<fillAudioDataDelegate> fillAudioDataDelegate;
 
-- (void)start;
+//- (instancetype)initWithFilePath:(NSString *)filePath;
+
+- (void)play;
 
 - (void)stop;
 

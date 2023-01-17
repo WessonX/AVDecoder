@@ -24,47 +24,26 @@ static OSStatus InputRenderCallback(void *inRefCon,
                                     UInt32 inNumberFrames,
                                     AudioBufferList *ioData);
 
-@protocol fillAudioDataDelegate <NSObject>
 
-- (int)fillDataWithBuffer:(uint8_t *)buffer numFrames:(int)numFrames numChannels:(int) channels;
-
-@end
-
-@interface AudioPlayer ()<fillAudioDataDelegate>
+@interface AudioPlayer ()
 
 @property(nonatomic, strong) AVAudioSession     *audioSession;
 @property(nonatomic, assign) AUGraph            graph;
 @property(nonatomic, assign) AUNode             ioNode;
 @property(nonatomic, assign) AudioUnit          ioUnit;
-@property(nonatomic, weak) id<fillAudioDataDelegate> fillAudioDataDelegate;
 @property(nonatomic, copy)   NSString           *filePath;
 @property(nonatomic, assign) BOOL               didPullStream;     //判断是否拉取到了数据.默认为0
 @end
 @implementation AudioPlayer
 {
-    AVDecoder *_avDecoder;
-    dispatch_queue_t _queue;
+//    AVDecoder *_avDecoder;
+//    dispatch_queue_t _queue;
 }
 
-- (instancetype)initWithFilePath:(NSString *)filePath {
+- (instancetype)init {
     self = [super init];
     if (self) {
-        // 进行解码
-        _queue = dispatch_queue_create("decodeQueue", DISPATCH_QUEUE_CONCURRENT);
-        _avDecoder = new AVDecoder([filePath UTF8String]);
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(_queue, ^{
-            // 初始化解码器
-            __strong typeof(self) strongSelf = weakSelf;
-            int ret = strongSelf->_avDecoder->decode();
-            if (ret < 0) {
-                NSLog(@"解码失败");
-            } else {
-                NSLog(@"解码成功");
-            }
-        });
-        self.filePath = filePath;
-        _fillAudioDataDelegate = self;
+
         // 设置默认参数
         self.graphSampleRate = sample_rate;
         self.ioBufferDuration = ioBufferDuration;
@@ -148,21 +127,8 @@ static OSStatus InputRenderCallback(void *inRefCon,
     
 }
 
-- (void)start {
-    // 如果解码器已经释放掉，则重新开始解码
-    if (!_avDecoder) {
-        _avDecoder = new AVDecoder([self.filePath UTF8String]);
-        __weak typeof(self) weakSelf = self;
-        dispatch_async(_queue, ^{
-            __strong typeof(self) strongSelf = weakSelf;
-            int ret = strongSelf->_avDecoder->decode();
-            if (ret < 0) {
-                NSLog(@"解码失败");
-            } else {
-                NSLog(@"解码成功");
-            }
-        });
-    }
+- (void)play {
+
     int status = AUGraphStart(_graph);
     CheckStatus(status, @"fail to start the graph", YES);
     NSLog(@"开始播放……");
@@ -191,7 +157,7 @@ static OSStatus InputRenderCallback(void *inRefCon,
     
     int ret = 0;
     if (self.fillAudioDataDelegate) {
-        ret = [self.fillAudioDataDelegate fillDataWithBuffer:tempData numFrames:numFrames numChannels:2];
+        ret = [self.fillAudioDataDelegate fillAudioDataWithBuffer:tempData numFrames:numFrames numChannels:2];
     }
     
     for (int i = 0; i < ioData->mNumberBuffers; ++i) {
@@ -209,8 +175,6 @@ static OSStatus InputRenderCallback(void *inRefCon,
     // 1. decoder还没开始解码，所以拉取不到
     // 2. 播放已经完毕
     if (ret == 0 && self.didPullStream) {
-        delete _avDecoder;
-        _avDecoder = nullptr;
         AUGraphStop(_graph);
         self.didPullStream = NO;
         NSLog(@"播放结束");
@@ -228,13 +192,9 @@ static OSStatus InputRenderCallback(void *inRefCon,
                                     UInt32 inBusNumber,
                                     UInt32 inNumberFrames,
                                     AudioBufferList *ioData) {
+    [[NSThread currentThread] setName:@"getAudioThread"];
     AudioPlayer *player = (__bridge id)inRefCon;
     return [player renderData:ioData atTimeStamp:inTimeStamp forElement:inBusNumber numberFrames:inNumberFrames flags:ioActionFlags];
-}
-
-- (int)fillDataWithBuffer:(uint8_t *)buffer numFrames:(int)numFrames numChannels:(int)channels {
-    int ret = _avDecoder->assembleRenderData(buffer, numFrames);
-    return ret;
 }
 
 - (void) printASBD: (AudioStreamBasicDescription) asbd {
@@ -267,7 +227,6 @@ static OSStatus InputRenderCallback(void *inRefCon,
     _graph  = NULL;
     _ioNode = NULL;
     _ioUnit = NULL;
-    delete _avDecoder;
 }
 
 @end

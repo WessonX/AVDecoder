@@ -217,7 +217,7 @@ int AVDecoder::decodePacket(AVCodecContext *codecContext, AVPacket *packet) {
         if (codecContext->codec_type == AVMEDIA_TYPE_VIDEO) {
             ret = out_video_frame(frame);
         } else {
-//            ret = out_audio_frame(frame);
+            ret = out_audio_frame(frame);
         }
         
         // frame用完要及时减少引用计数

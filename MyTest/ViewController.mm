@@ -94,7 +94,7 @@
             [self.playBtn setTitle:@"播放" forState:UIControlStateNormal];
             NSLog(@"点击了暂停按钮");
         } else {
-            [self.player start];
+            [self.player play];
             [self.playBtn setTitle:@"暂停" forState:UIControlStateNormal];
             NSLog(@"点击了播放按钮");
             

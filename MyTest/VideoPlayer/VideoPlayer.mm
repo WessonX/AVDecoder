@@ -29,20 +29,22 @@
     self.shouldPullData = YES;
     NSLog(@"开始播放");
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        if (self.dataDelegate && [self.dataDelegate respondsToSelector:@selector(fillDataWithBuffer:width:height:)]) {
-            
+        if (self.dataDelegate && [self.dataDelegate respondsToSelector:@selector(fillVideoDataWithBuffer:width:height:)]) {
+            [[NSThread currentThread] setName:@"videoThread"];
             while (self.shouldPullData) {
                 uint8_t *data = NULL;
                 int width = 0, height = 0;
                 
                 // 通过代理，获得视频帧以及宽高信息
-                [self.dataDelegate fillDataWithBuffer:(void **)&data width:&width height:&height];
+                [self.dataDelegate fillVideoDataWithBuffer:(void **)&data width:&width height:&height];
                 if (data) {
                     self.isPlaying = YES;
                     [self.videoView displayYUV420pData:data width:width height:height];
                     delete []data;
                 }
                 
+                // 35ms渲染一次，计算为28帧，考虑到其他的一些计算消耗，实际刚好是24帧。
+                [NSThread sleepForTimeInterval:0.035];
             }
         }
     });

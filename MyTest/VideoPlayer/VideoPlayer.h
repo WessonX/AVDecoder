@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - buffer: 视频帧
 ///   - width:  视频的宽度
 ///   - height: 视频的高度
--(void)fillDataWithBuffer:(void **)buffer width:(int *)width height:(int *)height;
+-(void)fillVideoDataWithBuffer:(void **)buffer width:(int *)width height:(int *)height;
 
 @end
 
