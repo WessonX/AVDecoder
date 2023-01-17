@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2D08C692296ECB3E00C8E8FD /* OpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D08C691296ECB3E00C8E8FD /* OpenGLView.m */; };
 		2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D31EF802959728B006BECB8 /* CommonUtil.m */; };
 		2D31EF832959950B006BECB8 /* 131.aac in Resources */ = {isa = PBXBuildFile; fileRef = 2D31EF8229597385006BECB8 /* 131.aac */; };
 		2D31EF87295A1724006BECB8 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D31EF86295A1724006BECB8 /* libavcodec.a */; };
@@ -19,7 +18,7 @@
 		2D4B529B296076AA004A4014 /* AudioPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D4B529A296076AA004A4014 /* AudioPlayer.mm */; };
 		2D4E769929629C1F00BA76A8 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D4E769829629C1F00BA76A8 /* AVFoundation.framework */; };
 		2D736657297284B40025BD6B /* trailer.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 2D736656297284B40025BD6B /* trailer.mp4 */; };
-		2DC4EDFE296FD90700E3AD0D /* OpenGLView20.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DC4EDFD296FD90700E3AD0D /* OpenGLView20.m */; };
+		2DC4EDFE296FD90700E3AD0D /* OpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DC4EDFD296FD90700E3AD0D /* OpenGLView.m */; };
 		2DC8E9B2294CAF2E0015FC49 /* 16k16bit.pcm in Resources */ = {isa = PBXBuildFile; fileRef = 2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */; };
 		2DD0D0D5295C6B9D0034C2EE /* big_buck_bunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */; };
 		2DD0D0D7295C83120034C2EE /* test.flv in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D6295C83120034C2EE /* test.flv */; };
@@ -59,8 +58,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2D08C690296ECB3E00C8E8FD /* OpenGLView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGLView.h; sourceTree = "<group>"; };
-		2D08C691296ECB3E00C8E8FD /* OpenGLView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OpenGLView.m; sourceTree = "<group>"; };
 		2D31EF7F2959728B006BECB8 /* CommonUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonUtil.h; sourceTree = "<group>"; };
 		2D31EF802959728B006BECB8 /* CommonUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommonUtil.m; sourceTree = "<group>"; };
 		2D31EF8229597385006BECB8 /* 131.aac */ = {isa = PBXFileReference; lastKnownFileType = file; path = 131.aac; sourceTree = "<group>"; };
@@ -81,8 +78,8 @@
 		2D4E769829629C1F00BA76A8 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		2D59CE832965734900906A56 /* ConcurrentQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConcurrentQueue.h; sourceTree = "<group>"; };
 		2D736656297284B40025BD6B /* trailer.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = trailer.mp4; sourceTree = "<group>"; };
-		2DC4EDFC296FD90700E3AD0D /* OpenGLView20.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLView20.h; sourceTree = "<group>"; };
-		2DC4EDFD296FD90700E3AD0D /* OpenGLView20.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLView20.m; sourceTree = "<group>"; };
+		2DC4EDFC296FD90700E3AD0D /* OpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLView.h; sourceTree = "<group>"; };
+		2DC4EDFD296FD90700E3AD0D /* OpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLView.m; sourceTree = "<group>"; };
 		2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = 16k16bit.pcm; sourceTree = "<group>"; };
 		2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_buck_bunny.mp4; sourceTree = "<group>"; };
 		2DD0D0D6295C83120034C2EE /* test.flv */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.flv; sourceTree = "<group>"; };
@@ -286,10 +283,8 @@
 		2D08C68F296ECB1500C8E8FD /* OpenGLView */ = {
 			isa = PBXGroup;
 			children = (
-				2DC4EDFC296FD90700E3AD0D /* OpenGLView20.h */,
-				2DC4EDFD296FD90700E3AD0D /* OpenGLView20.m */,
-				2D08C690296ECB3E00C8E8FD /* OpenGLView.h */,
-				2D08C691296ECB3E00C8E8FD /* OpenGLView.m */,
+				2DC4EDFC296FD90700E3AD0D /* OpenGLView.h */,
+				2DC4EDFD296FD90700E3AD0D /* OpenGLView.m */,
 			);
 			path = OpenGLView;
 			sourceTree = "<group>";
@@ -852,10 +847,9 @@
 				2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */,
 				2D4B529B296076AA004A4014 /* AudioPlayer.mm in Sources */,
 				2D410D0428F272B9009593AE /* ViewController.mm in Sources */,
-				2DC4EDFE296FD90700E3AD0D /* OpenGLView20.m in Sources */,
+				2DC4EDFE296FD90700E3AD0D /* OpenGLView.m in Sources */,
 				2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */,
 				2D410D0F28F272B9009593AE /* main.m in Sources */,
-				2D08C692296ECB3E00C8E8FD /* OpenGLView.m in Sources */,
 				2DFECBF52958AAB6002808A6 /* AVDecoder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

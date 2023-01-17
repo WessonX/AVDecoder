@@ -6,11 +6,15 @@
 //
 
 #import <UIKit/UIKit.h>
-
-NS_ASSUME_NONNULL_BEGIN
+#import <QuartzCore/QuartzCore.h>
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+#import <OpenGLES/EAGL.h>
 
 @interface OpenGLView : UIView
-- (void)displayYUV420pData:(void *)data width:(int)w height:(int)h;
-@end
 
-NS_ASSUME_NONNULL_END
+#pragma mark - 接口
+- (void)displayYUV420pData:(void *)data width:(int)w height:(int)h;
+- (void)setVideoSize:(GLuint)width height:(GLuint)height;
+
+@end

@@ -10,7 +10,6 @@
 #import "AudioPlayer.h"
 #import <Masonry/Masonry.h>
 #include "AVDecoder.hpp"
-#import "OpenGLView20.h"
 #include "avformat.h"
 #include "OpenGLView.h"
 
@@ -61,7 +60,7 @@
 //    self.player = [[AudioPlayer alloc]initWithFilePath:@"https://media.w3.org/2010/05/sintel/trailer.mp4"];
 //    self.player = [[AudioPlayer alloc] initWithFilePath:filePath];
     
-    self.openglView = [[OpenGLView alloc]initWithFrame:CGRectMake(20, 20, 854, 480)];
+    self.openglView = [[OpenGLView alloc]initWithFrame:self.view.bounds];
     [self.view addSubview:_openglView];
     decoder = new AVDecoder([filePath UTF8String]);
 //    decoder->outputPath = [filePath UTF8String];
