@@ -60,5 +60,11 @@
     }
 }
 
-
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    if (self.videoPlayer.isPlaying) {
+        [self.videoPlayer stop];
+    } else {
+        [self.videoPlayer play];
+    }
+}
 @end

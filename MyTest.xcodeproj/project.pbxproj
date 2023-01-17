@@ -10,7 +10,7 @@
 		2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D31EF802959728B006BECB8 /* CommonUtil.m */; };
 		2D31EF832959950B006BECB8 /* 131.aac in Resources */ = {isa = PBXBuildFile; fileRef = 2D31EF8229597385006BECB8 /* 131.aac */; };
 		2D31EF87295A1724006BECB8 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D31EF86295A1724006BECB8 /* libavcodec.a */; };
-		2D343B1C29757F0700CFAD1A /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D343B1B29757F0700CFAD1A /* VideoPlayer.m */; };
+		2D343B1C29757F0700CFAD1A /* VideoPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D343B1B29757F0700CFAD1A /* VideoPlayer.mm */; };
 		2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D410CFD28F272B9009593AE /* AppDelegate.m */; };
 		2D410D0428F272B9009593AE /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D410D0328F272B9009593AE /* ViewController.mm */; };
 		2D410D0928F272B9009593AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D410D0828F272B9009593AE /* Assets.xcassets */; };
@@ -65,7 +65,7 @@
 		2D31EF8229597385006BECB8 /* 131.aac */ = {isa = PBXFileReference; lastKnownFileType = file; path = 131.aac; sourceTree = "<group>"; };
 		2D31EF86295A1724006BECB8 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
 		2D343B1A29757F0700CFAD1A /* VideoPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
-		2D343B1B29757F0700CFAD1A /* VideoPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoPlayer.m; sourceTree = "<group>"; };
+		2D343B1B29757F0700CFAD1A /* VideoPlayer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VideoPlayer.mm; sourceTree = "<group>"; };
 		2D410CF928F272B9009593AE /* MyTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D410CFC28F272B9009593AE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2D410CFD28F272B9009593AE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -283,7 +283,7 @@
 			isa = PBXGroup;
 			children = (
 				2D343B1A29757F0700CFAD1A /* VideoPlayer.h */,
-				2D343B1B29757F0700CFAD1A /* VideoPlayer.m */,
+				2D343B1B29757F0700CFAD1A /* VideoPlayer.mm */,
 			);
 			path = VideoPlayer;
 			sourceTree = "<group>";
@@ -856,7 +856,7 @@
 			files = (
 				2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */,
 				2D4B529B296076AA004A4014 /* AudioPlayer.mm in Sources */,
-				2D343B1C29757F0700CFAD1A /* VideoPlayer.m in Sources */,
+				2D343B1C29757F0700CFAD1A /* VideoPlayer.mm in Sources */,
 				2D410D0428F272B9009593AE /* ViewController.mm in Sources */,
 				2DC4EDFE296FD90700E3AD0D /* OpenGLView.m in Sources */,
 				2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */,

@@ -32,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 判断是否需要拉取数据
 @property(nonatomic, assign)BOOL                           shouldPullData;
 
+/// 判断是否正在播放
+@property(nonatomic, assign)BOOL                           isPlaying;
 - (void)play;
 
 - (void)stop;
