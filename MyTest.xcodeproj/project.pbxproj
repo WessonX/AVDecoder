@@ -10,6 +10,7 @@
 		2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D31EF802959728B006BECB8 /* CommonUtil.m */; };
 		2D31EF832959950B006BECB8 /* 131.aac in Resources */ = {isa = PBXBuildFile; fileRef = 2D31EF8229597385006BECB8 /* 131.aac */; };
 		2D31EF87295A1724006BECB8 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D31EF86295A1724006BECB8 /* libavcodec.a */; };
+		2D343B1C29757F0700CFAD1A /* VideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D343B1B29757F0700CFAD1A /* VideoPlayer.m */; };
 		2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D410CFD28F272B9009593AE /* AppDelegate.m */; };
 		2D410D0428F272B9009593AE /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D410D0328F272B9009593AE /* ViewController.mm */; };
 		2D410D0928F272B9009593AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D410D0828F272B9009593AE /* Assets.xcassets */; };
@@ -20,6 +21,7 @@
 		2D736657297284B40025BD6B /* trailer.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 2D736656297284B40025BD6B /* trailer.mp4 */; };
 		2DC4EDFE296FD90700E3AD0D /* OpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DC4EDFD296FD90700E3AD0D /* OpenGLView.m */; };
 		2DC8E9B2294CAF2E0015FC49 /* 16k16bit.pcm in Resources */ = {isa = PBXBuildFile; fileRef = 2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */; };
+		2DCF758A2976BA46003BDB8A /* WHPlayerViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2DCF75892976BA46003BDB8A /* WHPlayerViewController.mm */; };
 		2DD0D0D5295C6B9D0034C2EE /* big_buck_bunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */; };
 		2DD0D0D7295C83120034C2EE /* test.flv in Resources */ = {isa = PBXBuildFile; fileRef = 2DD0D0D6295C83120034C2EE /* test.flv */; };
 		2DD1786A2951DDC70057B9BC /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD178692951DDC70057B9BC /* AudioToolbox.framework */; };
@@ -62,6 +64,8 @@
 		2D31EF802959728B006BECB8 /* CommonUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommonUtil.m; sourceTree = "<group>"; };
 		2D31EF8229597385006BECB8 /* 131.aac */ = {isa = PBXFileReference; lastKnownFileType = file; path = 131.aac; sourceTree = "<group>"; };
 		2D31EF86295A1724006BECB8 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
+		2D343B1A29757F0700CFAD1A /* VideoPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
+		2D343B1B29757F0700CFAD1A /* VideoPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoPlayer.m; sourceTree = "<group>"; };
 		2D410CF928F272B9009593AE /* MyTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D410CFC28F272B9009593AE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2D410CFD28F272B9009593AE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -81,6 +85,8 @@
 		2DC4EDFC296FD90700E3AD0D /* OpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLView.h; sourceTree = "<group>"; };
 		2DC4EDFD296FD90700E3AD0D /* OpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLView.m; sourceTree = "<group>"; };
 		2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = 16k16bit.pcm; sourceTree = "<group>"; };
+		2DCF75882976BA46003BDB8A /* WHPlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WHPlayerViewController.h; sourceTree = "<group>"; };
+		2DCF75892976BA46003BDB8A /* WHPlayerViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WHPlayerViewController.mm; sourceTree = "<group>"; };
 		2DD0D0D4295C6B9D0034C2EE /* big_buck_bunny.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_buck_bunny.mp4; sourceTree = "<group>"; };
 		2DD0D0D6295C83120034C2EE /* test.flv */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.flv; sourceTree = "<group>"; };
 		2DD178692951DDC70057B9BC /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -276,6 +282,8 @@
 		2D08C68E296ECB0600C8E8FD /* VideoPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				2D343B1A29757F0700CFAD1A /* VideoPlayer.h */,
+				2D343B1B29757F0700CFAD1A /* VideoPlayer.m */,
 			);
 			path = VideoPlayer;
 			sourceTree = "<group>";
@@ -332,6 +340,8 @@
 				2D410CFD28F272B9009593AE /* AppDelegate.m */,
 				2D410D0228F272B9009593AE /* ViewController.h */,
 				2D410D0328F272B9009593AE /* ViewController.mm */,
+				2DCF75882976BA46003BDB8A /* WHPlayerViewController.h */,
+				2DCF75892976BA46003BDB8A /* WHPlayerViewController.mm */,
 				2D410D0828F272B9009593AE /* Assets.xcassets */,
 				2DC8E9B1294CAF2E0015FC49 /* 16k16bit.pcm */,
 				2D31EF8229597385006BECB8 /* 131.aac */,
@@ -846,9 +856,11 @@
 			files = (
 				2D31EF812959728B006BECB8 /* CommonUtil.m in Sources */,
 				2D4B529B296076AA004A4014 /* AudioPlayer.mm in Sources */,
+				2D343B1C29757F0700CFAD1A /* VideoPlayer.m in Sources */,
 				2D410D0428F272B9009593AE /* ViewController.mm in Sources */,
 				2DC4EDFE296FD90700E3AD0D /* OpenGLView.m in Sources */,
 				2D410CFE28F272B9009593AE /* AppDelegate.m in Sources */,
+				2DCF758A2976BA46003BDB8A /* WHPlayerViewController.mm in Sources */,
 				2D410D0F28F272B9009593AE /* main.m in Sources */,
 				2DFECBF52958AAB6002808A6 /* AVDecoder.cpp in Sources */,
 			);

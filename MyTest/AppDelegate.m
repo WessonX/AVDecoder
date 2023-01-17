@@ -7,6 +7,8 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "WHPlayerViewController.h"
+#import "CommonUtil.h"
 @interface AppDelegate ()
 
 @end
@@ -17,7 +19,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     self.window = [UIWindow new];
-    ViewController *rootVC = [ViewController new];
+    NSString *filePath =  [CommonUtil bundlePath:@"big_buck_bunny.mp4"];
+    WHPlayerViewController *rootVC = [[WHPlayerViewController alloc] initWithFilePath:filePath];
     [self.window setRootViewController:rootVC];
     [self.window makeKeyAndVisible];
     return YES;

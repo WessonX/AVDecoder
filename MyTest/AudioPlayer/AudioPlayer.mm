@@ -24,19 +24,19 @@ static OSStatus InputRenderCallback(void *inRefCon,
                                     UInt32 inNumberFrames,
                                     AudioBufferList *ioData);
 
-@protocol fillDataDelegate <NSObject>
+@protocol fillAudioDataDelegate <NSObject>
 
 - (int)fillDataWithBuffer:(uint8_t *)buffer numFrames:(int)numFrames numChannels:(int) channels;
 
 @end
 
-@interface AudioPlayer ()<fillDataDelegate>
+@interface AudioPlayer ()<fillAudioDataDelegate>
 
 @property(nonatomic, strong) AVAudioSession     *audioSession;
 @property(nonatomic, assign) AUGraph            graph;
 @property(nonatomic, assign) AUNode             ioNode;
 @property(nonatomic, assign) AudioUnit          ioUnit;
-@property(nonatomic, weak) id<fillDataDelegate> fillDataDelegate;
+@property(nonatomic, weak) id<fillAudioDataDelegate> fillAudioDataDelegate;
 @property(nonatomic, copy)   NSString           *filePath;
 @property(nonatomic, assign) BOOL               didPullStream;     //判断是否拉取到了数据.默认为0
 @end
@@ -64,7 +64,7 @@ static OSStatus InputRenderCallback(void *inRefCon,
             }
         });
         self.filePath = filePath;
-        _fillDataDelegate = self;
+        _fillAudioDataDelegate = self;
         // 设置默认参数
         self.graphSampleRate = sample_rate;
         self.ioBufferDuration = ioBufferDuration;
@@ -190,8 +190,8 @@ static OSStatus InputRenderCallback(void *inRefCon,
     memset(tempData, 0, ioData->mBuffers[0].mDataByteSize);
     
     int ret = 0;
-    if (self.fillDataDelegate) {
-        ret = [self.fillDataDelegate fillDataWithBuffer:tempData numFrames:numFrames numChannels:2];
+    if (self.fillAudioDataDelegate) {
+        ret = [self.fillAudioDataDelegate fillDataWithBuffer:tempData numFrames:numFrames numChannels:2];
     }
     
     for (int i = 0; i < ioData->mNumberBuffers; ++i) {
