@@ -44,11 +44,6 @@
     self.audioPlayer.fillAudioDataDelegate = self;
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-//    [self.videoPlayer play];
-//    [self.audioPlayer play];
-}
-
 - (void)fillVideoDataWithBuffer:(void **)buffer width:(int *)width height:(int *)height {
     if(_decoder->isDecoding || !_decoder->videoQueue.empty()) {
         if (!self->_decoder->videoQueue.empty()) {

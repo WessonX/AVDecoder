@@ -507,10 +507,10 @@ AVDecoder::~AVDecoder(){
 }
 
 bool AVDecoder::needScale(AVCodecContext *codecContext) {
-    if (width == dst_width && height == dst_height && pix_fmt == dst_pix_fmt) {
+    if ( pix_fmt == dst_pix_fmt) {
         return false;
     }
-    return false ;  //for test
+    return true ;  //for test
 }
 
 int AVDecoder::rescale(uint8_t *buffer[]) {

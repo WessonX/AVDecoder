@@ -19,7 +19,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     self.window = [UIWindow new];
-    NSString *filePath =  [CommonUtil bundlePath:@"big_buck_bunny.mp4"];
+    NSString *filePath =  [CommonUtil bundlePath:@"test.flv"];
+//    NSString *filePath = @"https://media.w3.org/2010/05/sintel/trailer.mp4";
     WHPlayerViewController *rootVC = [[WHPlayerViewController alloc] initWithFilePath:filePath];
     [self.window setRootViewController:rootVC];
     [self.window makeKeyAndVisible];
