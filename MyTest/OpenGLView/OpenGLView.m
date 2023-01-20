@@ -210,7 +210,10 @@ static NSString *const fragmentShaderString = SHADER_STRING(
             [self createFrameAndRenderBuffer];
         }
         
-        glViewport(0, 0, self.bounds.size.width * _viewScale, self.bounds.size.height * self->_viewScale);
+//        glViewport(0, 0, self.bounds.size.width * _viewScale, self.bounds.size.height * self->_viewScale);
+        // 保持屏幕宽高比，进行伸缩，使得视频高度和屏幕高度一致，水平剧中
+        int scaledWith = self->_videoW * self.bounds.size.height / self->_videoH;
+        glViewport((self.bounds.size.width - scaledWith) * _viewScale / 2, 0, scaledWith * _viewScale, self.bounds.size.height  * _viewScale);
     });
 }
 
@@ -255,7 +258,9 @@ static NSString *const fragmentShaderString = SHADER_STRING(
     CGSize size = self.bounds.size;
     
     // 2. 设置绘制窗口大小和位置
-    glViewport(0, 0, size.width * _viewScale, size.height * _viewScale);
+    // 保持屏幕宽高比，进行伸缩，使得视频高度和屏幕高度一致，水平剧中
+    int scaledWith = self->_videoW * self.bounds.size.height / self->_videoH;
+    glViewport((size.width - scaledWith) * _viewScale / 2, 0, scaledWith * _viewScale, size.height * _viewScale);
     
     // 3. 矩形窗口的顶点坐标
     static const GLfloat squareVertices[] = {
