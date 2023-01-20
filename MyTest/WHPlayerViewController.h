@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WHPlayerViewController : UIViewController<fillVideoFrameDelegate,fillAudioDataDelegate>
+@interface WHPlayerViewController : UIViewController<fillAudioDataDelegate>
 
 /// 视频播放器
 @property(nonatomic, strong)VideoPlayer *videoPlayer;

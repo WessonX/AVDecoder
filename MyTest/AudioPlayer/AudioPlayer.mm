@@ -123,12 +123,12 @@ static OSStatus InputRenderCallback(void *inRefCon,
     CAShow(_graph);
     
     [self printASBD:asbd];
-    // 开启graph
+    
     
 }
 
 - (void)play {
-
+    // 开启graph
     int status = AUGraphStart(_graph);
     CheckStatus(status, @"fail to start the graph", YES);
     NSLog(@"开始播放……");
@@ -167,7 +167,10 @@ static OSStatus InputRenderCallback(void *inRefCon,
     delete []tempData;
     if (ret > 0) {
         self.didPullStream = YES;
-        NSLog(@"开始拉流");
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+                    NSLog(@"开始拉流");
+        });
         
     }
     // 拉取到的数据为0，且之前已经拉取到了数据，说明播放已经完毕.应该释放掉decoder，同时暂停graph，停止拉流
@@ -177,7 +180,6 @@ static OSStatus InputRenderCallback(void *inRefCon,
     if (ret == 0 && self.didPullStream) {
         AUGraphStop(_graph);
         self.didPullStream = NO;
-        NSLog(@"播放结束");
         
         // 发送播放结束的通知
         NSNotification *endPlayNotification = [NSNotification notificationWithName:@"endPlayNotification" object:nil];

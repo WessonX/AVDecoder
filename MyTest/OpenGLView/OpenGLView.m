@@ -210,7 +210,7 @@ static NSString *const fragmentShaderString = SHADER_STRING(
             [self createFrameAndRenderBuffer];
         }
         
-        glViewport(0, 0, self.bounds.size.width*_viewScale, self.bounds.size.height*self->_viewScale);
+        glViewport(0, 0, self.bounds.size.width * _viewScale, self.bounds.size.height * self->_viewScale);
     });
 }
 

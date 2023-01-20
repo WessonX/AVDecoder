@@ -50,6 +50,10 @@
     });
 }
 
+- (void)playWithData:(void *)buffer width:(int)width height:(int)height {
+    [self.videoView displayYUV420pData:buffer width:width height:height];
+}
+
 - (void)stop {
     NSLog(@"播放暂停");
     self.shouldPullData = NO;

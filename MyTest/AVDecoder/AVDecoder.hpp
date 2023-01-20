@@ -51,6 +51,9 @@ struct DecodedFrame {
     
     // 总共的sample帧数目
     int frameCnt = 0;
+    
+    // 音频的时间戳
+    double position;
 };
 
 /**
@@ -65,6 +68,9 @@ struct VideoFrame {
     
     // 视频的高
     int height;
+    
+    // 视频的时间戳
+    double position;
 };
 
 class AVDecoder{
@@ -85,6 +91,15 @@ private:
     
     // 视频帧的宽度
     int width;
+    
+    // 视频的帧率
+    double fps;
+    
+    // 视频的时间基
+    double videoTimeBase;
+    
+    // 音频的时间基
+    double audioTimeBase;
     
     // 视频输出缓冲区 data[0][1][2]分别存储y,u,v分量 （当然也可能是rgb分量，取决于具体的格式）
     uint8_t *video_dst_data[4] = {NULL};
@@ -191,8 +206,8 @@ public:
     /// 解码数据，并将数据以decodedFrame的形式存储。
     int decode();
     
-    /// 从decodedFrame队列中读取指定数目的样本，返回给audioUnit渲染
-    int assembleRenderData(uint8_t *, int);
+    /// 从decodedFrame队列中读取指定数目的样本，返回给audioUnit渲染。同时返回音频帧的时间戳
+    int assembleRenderData(uint8_t *, int, double *);
     
     void destroy();
     

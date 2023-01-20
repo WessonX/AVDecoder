@@ -23,6 +23,34 @@ void getTimeStamp() {
     std::cout << strTime << std::endl;
 }
 
+static void getFPSandTimeBase(AVStream *stream, double defaultTimeBase, double *fps, double *timeBase) {
+    double tempFps, tempTimeBase;
+    
+    // 求timebase
+    if (stream->time_base.den && stream->time_base.num) {
+        tempTimeBase = av_q2d(stream->time_base);
+    } else if (stream->codec->time_base.den && stream->codec->time_base.num) {
+        tempTimeBase = av_q2d(stream->codec->time_base);
+    } else tempTimeBase = defaultTimeBase;
+    // 求fps
+    
+    // 优先使用平均帧率，其次用实时帧率，最后用timeBase的倒数
+    if (stream->avg_frame_rate.den && stream->avg_frame_rate.num) {
+        tempFps = av_q2d(stream->avg_frame_rate);
+    } else if (stream->r_frame_rate.den && stream->r_frame_rate.num) {
+        tempFps = av_q2d(stream->r_frame_rate);
+    } else {
+        tempFps = 1.0 / tempTimeBase;
+    }
+    
+    if (fps) {
+        *fps = tempFps;
+    }
+    if (timeBase) {
+        *timeBase = tempTimeBase;
+    }
+}
+
 AVDecoder::AVDecoder(const char *src_path) {
     avformat_network_init();
     
@@ -131,6 +159,9 @@ int AVDecoder::decode(){
         cout<<"sample_rate:"<<audioCodecCtx->sample_rate<<endl;
         cout<<"sample_fmt:"<< av_get_sample_fmt_name(audioCodecCtx->sample_fmt)<<endl;
         cout<<"channels:"<<audioCodecCtx->channels<<endl;
+        
+        // 获取音频的时间基
+        getFPSandTimeBase(audioStream, 0.025, 0, &audioTimeBase);
     }
     if (videoStream) {
         ret = createCodecCtx(videoStream);
@@ -153,6 +184,9 @@ int AVDecoder::decode(){
         cout<<"width:"<<width<<endl;
         cout<<"height:"<<height<<endl;
         cout<<"pixel_fmt:"<<av_get_pix_fmt_name(pix_fmt)<<endl;
+        
+        // 获取视频的帧率和时间基
+        getFPSandTimeBase(videoStream, 0.04, &fps, &videoTimeBase);
     }
     
     // 创建packet和frame
@@ -249,6 +283,7 @@ int AVDecoder::out_audio_frame(AVFrame *frame){
     DecodedFrame decodedFrame;
     decodedFrame.data = new uint8_t[nb_samples * OUT_CHANNELS * numBytes];
     decodedFrame.frameCnt = nb_samples;
+    decodedFrame.position = frame->best_effort_timestamp * audioTimeBase;
     
     for (int i = 0; i < nb_samples; ++i) {
         for (int channel = 0; channel < OUT_CHANNELS; ++channel) {
@@ -270,8 +305,9 @@ int AVDecoder::out_video_frame(AVFrame *frame){
     av_image_copy(video_dst_data, video_dst_linesize, (const uint8_t **)(frame->data), frame->linesize, pix_fmt, width, height);
     
     VideoFrame videoFrame;
-    videoFrame.width  = frame->width;
-    videoFrame.height = frame->height;
+    videoFrame.width    = frame->width;
+    videoFrame.height   = frame->height;
+    videoFrame.position = frame->best_effort_timestamp * videoTimeBase;
     
     // 判断图像格式是否需要转换
     if (needScale(videoCodecCtx)) {
@@ -296,7 +332,7 @@ int AVDecoder::out_video_frame(AVFrame *frame){
     return 0;
 }
 
-int AVDecoder::assembleRenderData(uint8_t *buffer, int numFrames) {
+int AVDecoder::assembleRenderData(uint8_t *buffer, int numFrames,double *position) {
     // 采样深度
     int numBytes = av_get_bytes_per_sample(out_sample_fmt);
     
@@ -313,6 +349,9 @@ int AVDecoder::assembleRenderData(uint8_t *buffer, int numFrames) {
             break;
         }
         DecodedFrame &decodedFrame = this->audioQueue.front();
+        
+        // 回传这一帧的时间戳
+        *position = decodedFrame.position;
         
         // decodedFrame剩余的未被读取过的帧数目
         int frameLeftCnt = decodedFrame.frameCnt - decodedFrame.readCnt;

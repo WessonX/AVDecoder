@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stop;
 
+- (void)playWithData:(void *)buffer width:(int)width height:(int)height;
+
 @end
 
 NS_ASSUME_NONNULL_END
