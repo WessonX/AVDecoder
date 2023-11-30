@@ -1035,7 +1035,7 @@
 					"GLES_SILENCE_DEPRECATION=1",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = /Users/wesson/Desktop/MyTest/MyTest/ffmpeg/include;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Mytest/ffmpeg/include";
 				INFOPLIST_FILE = MyTest/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -1072,7 +1072,7 @@
 				DEVELOPMENT_TEAM = P2A98DA7PQ;
 				ENABLE_BITCODE = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = /Users/wesson/Desktop/MyTest/MyTest/ffmpeg/include;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Mytest/ffmpeg/include";
 				INFOPLIST_FILE = MyTest/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
